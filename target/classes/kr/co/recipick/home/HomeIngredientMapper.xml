@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.recipick.home.HomeIngredientMapper">
+	
+  	<!-- 이번 주 인기 식재료 -->
+  	<select id="getPopularIngredients" resultType="kr.co.recipick.home.HomeIngredientVO">
+    SELECT
+    ri.recipe_id,
+    ri.ing_id,
+    i.name AS ing_name,  -- name 컬럼 사용
+    i.price,
+    i.image,
+    i.discount,
+    COUNT(*) AS ingredient_count
+FROM recipe_ingredient ri
+INNER JOIN order_history oh ON ri.recipe_id = oh.recipe_id
+INNER JOIN ingredient i ON ri.ing_id = i.ing_id
+GROUP BY ri.recipe_id, ri.ing_id, i.name, i.price, i.image  -- name 컬럼으로 그룹화
+ORDER BY ingredient_count DESC
+LIMIT 4;
+  </select>
+
+</mapper>

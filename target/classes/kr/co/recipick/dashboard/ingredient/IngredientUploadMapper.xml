@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.recipick.dashboard.ingredient.IngredientUploadMapper">
+    <insert id="insertIngredient" parameterType="kr.co.recipick.dashboard.ingredient.IngredientUploadVO" useGeneratedKeys="true" keyProperty="ing_id">
+        INSERT INTO ingredient (code, name, avg_gram, discount, unit, origin, price, stock, season, image, detail)
+        VALUES (#{code}, #{name}, #{avg_gram}, #{discount}, #{unit}, #{origin}, #{price}, #{stock}, #{season}, #{image}, #{detail})
+    </insert>
+
+    <insert id="insertIngredientCategoryGroup" parameterType="kr.co.recipick.dashboard.ingredient.IngredientUploadVO">
+	  INSERT INTO ing_category_group (ing_id, ing_main, ing_sub, ing_detail) 
+	  VALUES (#{ing_id}, #{ing_main}, #{ing_sub}, #{ing_detail})
+	</insert>
+    
+  <select id="getAllIngredients" resultType="kr.co.recipick.dashboard.ingredient.IngredientUploadVO">
+    SELECT * FROM ingredient LIMIT #{offset}, #{pageSize}
+  </select>
+
+  <select id="searchIngredientsByTitle" resultType="kr.co.recipick.dashboard.ingredient.IngredientUploadVO">
+    SELECT * 
+    FROM ingredient 
+    WHERE name LIKE CONCAT('%', #{keyword}, '%') 
+    LIMIT #{offset}, #{pageSize}
+  </select>
+
+  <select id="getTotalCount" resultType="int">
+    SELECT COUNT(*) FROM ingredient
+  </select>
+
+  <select id="getSearchTotalCount" parameterType="String" resultType="int">
+    SELECT COUNT(*) FROM ingredient WHERE name LIKE CONCAT('%', #{keyword}, '%')
+  </select>
+	
+  	<update id="updateStock" parameterType="kr.co.recipick.dashboard.ingredient.IngredientUploadVO">
+        UPDATE ingredient
+        SET stock = #{stock}
+        WHERE ing_id = #{ing_id}
+    </update>
+</mapper>
+

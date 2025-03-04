@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.recipick.member.MemberMapper">
+	<insert id="regist" parameterType="kr.co.recipick.member.MemberVO">
+		INSERT INTO member (
+			 email, nickname, pwd, gender, name, birth, phone,address, admin
+		) VALUES (
+			#{email},#{nickname}, #{pwd}, #{gender}, #{name}, #{birth}, #{phone}, #{address}, NULL
+			
+		)
+		<selectKey order="AFTER" keyProperty="member_id" resultType="int">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+	</insert>
+	<select id="emailCheck" parameterType="String" resultType="int">
+		SELECT COUNT(*) FROM member WHERE email=#{email}
+	</select>
+	<delete id="delete" parameterType="int">
+			DELETE FROM member where member_id=#{member_id}
+	</delete>
+	<select id="login" parameterType="kr.co.recipick.member.MemberVO" resultType="kr.co.recipick.member.MemberVO">
+		SELECT * FROM member WHERE email=#{email} AND pwd=#{pwd}
+	</select>
+	<select id="adminCheck" resultType="int">
+	    SELECT COUNT(*) FROM member WHERE email=#{email} AND pwd=#{pwd} AND ADMIN = '1'
+</select>
+	<select id="getNickname" resultType="String">
+		    SELECT nickname FROM member WHERE email=#{email} AND pwd=#{pwd}
+	</select>
+	<select id="getMemberid" resultType="int">
+		    SELECT member_id FROM member WHERE email=#{email} AND pwd=#{pwd}
+	</select>
+
+	<select id="detail" resultType="kr.co.recipick.member.MemberVO" parameterType="int">
+		SELECT * FROM member WHERE member_id=#{member_id}
+	</select>
+	
+	<update id="update" parameterType="kr.co.recipick.member.MemberVO">
+		UPDATE member SET
+			<if test="pwd != ''">
+			pwd = #{pwd},
+			</if>
+			
+			nickname= #{nickname},
+			name = #{name},
+			gender = #{gender},
+			birth = #{birth},
+			phone= #{phone},
+			address= #{address}	
+		WHERE member_id = #{member_id}
+	</update>
+		<sql id="searchSql">
+		<where>
+			<if test="searchWord != null and searchWord != ''">				
+				title LIKE '%${searchWord}%								
+			</if>
+		</where>
+		</sql>
+
+	 
+		<!-- 카운트 -->
+	<select id="count" parameterType="kr.co.recipick.member.MemberVO" resultType="int">
+		SELECT COUNT(*) FROM order_history		
+		where member_id= #{member_id}
+		<if test="searchWord != null and searchWord != ''">
+            AND title LIKE '%${searchWord}%'
+        </if>
+        <if test="year != 'all' and year != null">
+        	AND LEFT(order_date, 4) = #{year}
+        </if> 	
+	</select>
+	
+	 <select id="list" parameterType="kr.co.recipick.member.MemberVO" resultType="kr.co.recipick.member.MemberVO">
+			SELECT 
+		    oh.title, 
+		    oh.oh_id, 
+		    oh.order_date, 
+		    oh.qty, 
+		    oh.order_state, 
+		    oh.price, 
+		    oh.recipe_id, 
+		    oh.category, 
+		    oh.ing_id, 
+		    r.description, 
+		    r.main_image, 
+		    i.image,
+		    i.detail,
+		    i.name,
+		    i.price
+		   
+		FROM 
+		    order_history oh
+		LEFT JOIN 
+		    recipe r
+		ON 
+		    oh.recipe_id = r.recipe_id
+		LEFT JOIN 
+		    ingredient i
+		ON 
+		    oh.ing_id = i.ing_id
+		WHERE 
+		    member_id = #{member_id}
+		<if test="searchWord != null and searchWord != ''">
+            AND oh.title LIKE '%${searchWord}%'
+        </if>
+        <if test="year != 'all' and year != null">
+        	AND LEFT(oh.order_date, 4) = #{year}
+        </if>        	
+		ORDER BY oh.order_date DESC, oh.oh_id DESC
+		LIMIT #{startIdx}, 10
+	 </select> 
+	 <!-- 상세 -->
+	 
+	 <!-- 리뷰작성 -->
+	<select id="getNotWrittenReviews" parameterType="kr.co.recipick.member.MemberVO" resultType="kr.co.recipick.member.MemberVO">
+			SELECT 
+			    oh.title, 
+			    oh.oh_id, 
+			    oh.order_date, 
+			    oh.qty, 
+			    oh.order_state, 
+			    oh.price, 
+			    oh.recipe_id,
+			    oh.delivery_status,
+			    rr.star_rating,
+			    rr.content,
+			    rr.review_dt,
+			    rr.review_id,
+			    r.description,
+			    r.main_image
+			FROM 
+			    order_history oh
+			LEFT JOIN 
+			    recipe_review rr
+			ON 
+			    oh.member_id = rr.review_writer                        
+			    AND oh.recipe_id = rr.recipe_id
+			LEFT JOIN 
+			    recipe r
+			ON 
+			    oh.recipe_id = r.recipe_id
+			WHERE 
+			    oh.member_id = #{member_id}
+	        AND rr.recipe_id IS NULL
+	         AND oh.category='r'
+	    ORDER BY 
+	        oh.order_date DESC
+	       	LIMIT #{startIdx}, 10
+	 </select> 
+	
+	<!-- 리뷰보기 -->
+	<select id="getWrittenReviews" parameterType="kr.co.recipick.member.MemberVO" resultType="kr.co.recipick.member.MemberVO">
+			SELECT 
+			    oh.title, 
+			    oh.oh_id, 
+			    oh.order_date, 
+			    oh.qty, 
+			    oh.order_state, 
+			    oh.price, 
+			    oh.recipe_id,
+			    oh.delivery_status,
+			    rr.star_rating,
+			    rr.content,
+			    rr.review_dt,
+			    rr.review_id,
+			    r.description,
+			    r.main_image
+			FROM 
+			    order_history oh
+			LEFT JOIN 
+			    recipe_review rr
+			ON 
+			    oh.member_id = rr.review_writer                        
+			    AND oh.recipe_id = rr.recipe_id
+			LEFT JOIN 
+			    recipe r
+			ON 
+			    oh.recipe_id = r.recipe_id
+			WHERE 
+			    oh.member_id = #{member_id}
+	        AND rr.recipe_id IS NOT NULL
+	        AND oh.category='r'
+	    ORDER BY 
+	        oh.order_date DESC
+	         LIMIT #{startIdx}, 10 
+	 </select> 
+	
+	<select id="countWrittenReviews" parameterType="kr.co.recipick.member.MemberVO" resultType="int">
+		SELECT COUNT(*) 
+		FROM order_history oh
+	    LEFT JOIN 
+	        recipe_review rr
+	    ON 
+	        oh.member_id = rr.review_writer                        
+	        AND oh.recipe_id = rr.recipe_id
+	    WHERE 
+	        oh.member_id = #{member_id}
+	        AND rr.recipe_id IS NOT NULL
+		
+		
+	</select>
+	
+	<select id="countNotWrittenReviews" parameterType="kr.co.recipick.member.MemberVO" resultType="int">
+		SELECT COUNT(*) 
+		FROM order_history oh
+	    LEFT JOIN 
+	        recipe_review rr
+	    ON 
+	        oh.member_id = rr.review_writer                        
+	        AND oh.recipe_id = rr.recipe_id
+	    WHERE 
+	        oh.member_id = #{member_id}
+	        AND rr.recipe_id IS NULL
+		
+	</select>
+	
+	<select id="detail_o" parameterType="kr.co.recipick.member.MemberVO" resultType="kr.co.recipick.member.MemberVO">
+			SELECT 
+			    o.member_id,
+			    m.address,
+			    o.oh_id, 
+			    o.title, 
+			    o.price, 
+			    o.order_state, 
+			    o.delivery_status, 
+			    o.category, 
+			    o.qty, 
+			    o.order_date, 
+			    o.recipe_id, 
+			    o.ing_id, 
+			    m.name, 
+			    m.phone,
+			    o.discount,
+			    o.payment_method,
+			    r.description,
+			    r.main_image,
+			    i.image
+			FROM 
+			    order_history o
+			JOIN 
+			    member m 
+			ON 
+			    o.member_id = m.member_id
+		
+			LEFT JOIN 
+			    recipe r
+			ON 
+			    o.recipe_id = r.recipe_id
+		    LEFT JOIN 
+		    ingredient i
+			ON 
+		    o.ing_id = i.ing_id
+			WHERE 
+			    o.oh_id = #{oh_id};
+			     </select>
+     
+     <update id="deleteOrder" parameterType="kr.co.recipick.member.MemberVO">
+     	UPDATE order_history
+     	set order_state='주문취소'
+     	where oh_id=#{oh_id}
+     </update>
+     
+     <delete id="deleteReview" parameterType="int">
+     	DELETE FROM recipe_review
+     	where review_id= #{review_id}
+     
+     </delete>
+
+	<insert id="writeReview">
+    INSERT INTO recipe_review (recipe_id, review_writer, star_rating, review_dt, content)
+    VALUES (#{recipe_id}, #{member_id}, #{star_rating}, NOW(), #{content});
+	</insert>
+     
+	<select id="getLikeRecipes"
+			parameterType="kr.co.recipick.member.MemberVO"
+		resultType="kr.co.recipick.member.MemberVO">
+		SELECT 
+	    r.*, 
+	    COUNT(DISTINCT rl.member_id) AS likes_count, 
+	    COALESCE(AVG(rv.star_rating), 0) AS avg_rating, 
+	    COUNT(DISTINCT rv.review_id) AS review_count
+		FROM recipe r
+		LEFT JOIN recipe_category_group c ON r.recipe_id = c.recipe_id
+		LEFT JOIN recipe_like rl ON r.recipe_id = rl.recipe_id
+		LEFT JOIN recipe_review rv ON r.recipe_id = rv.recipe_id
+		WHERE member_id=#{member_id}			    
+		GROUP BY r.recipe_id
+		ORDER BY r.recipe_id DESC
+		LIMIT #{startIdx}, #{perPageL}
+	</select>
+	
+	<select id="countLikeRecipes"
+		parameterType="kr.co.recipick.member.MemberVO"
+		resultType="int">
+		SELECT COUNT(DISTINCT r.recipe_id) AS recipe_count
+		FROM recipe r
+		LEFT JOIN recipe_like rl ON r.recipe_id = rl.recipe_id
+		LEFT JOIN member m ON rl.member_id = m.member_id
+		WHERE m.member_id=#{member_id}
+		
+		</select>
+</mapper>

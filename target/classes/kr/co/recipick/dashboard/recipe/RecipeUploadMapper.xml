@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.recipick.dashboard.recipe.RecipeUploadMapper">
+    <insert id="insertRecipe" parameterType="kr.co.recipick.dashboard.recipe.RecipeUploadVO" useGeneratedKeys="true" keyProperty="recipe_id">
+        INSERT INTO recipe (title, description, cooking_time, serving_count, main_image)
+        VALUES (#{title}, #{description}, #{cooking_time}, #{serving_count}, #{main_image})
+        <selectKey keyProperty="recipe_id" order="AFTER" resultType="int">
+			SELECT LAST_INSERT_ID()
+		</selectKey> 
+    </insert>
+   
+     <insert id="insertRecipeCategoryGroup" parameterType="kr.co.recipick.dashboard.recipe.RecipeUploadVO">
+	  INSERT INTO recipe_category_group (recipe_id, recipe_main, recipe_sub, recipe_detail) 
+	  VALUES (#{recipe_id}, #{recipe_main}, #{recipe_sub}, #{recipe_detail})
+	 </insert>
+	
+	<insert id="insertTag" parameterType="map">
+	    INSERT INTO tag (recipe_id, tag_name) VALUES (#{recipe_id}, #{tagName})
+	</insert>
+			
+			
+	<insert id="recipe_ingredient" parameterType="kr.co.recipick.dashboard.recipe.RecipeIngredientUploadVO">
+	    INSERT INTO recipe_ingredient (recipe_id, ing_id, ing_times, ing_name, ing_gram) VALUES (#{recipe_id}, #{ing_id}, #{ing_times}, #{ing_name}, #{ing_gram})
+	</insert>
+
+	<insert id="recipe_step" parameterType="kr.co.recipick.dashboard.recipe.RecipeStepUploadVO">
+	    INSERT INTO recipe_step (recipe_id, description, img_url, sort) VALUES (#{recipe_id}, #{description}, #{img_url}, #{sort})
+	</insert>
+
+    
+  <select id="getAllRecipes" resultType="kr.co.recipick.dashboard.recipe.RecipeUploadVO">
+    SELECT * FROM recipe LIMIT #{offset}, #{pageSize}
+  </select>
+
+<select id="getAllingredient" resultType="kr.co.recipick.dashboard.recipe.RecipeUploadVO">
+    SELECT ing_id, name, price, unit FROM ingredient
+</select>
+
+  <select id="searchRecipesByTitle" resultType="kr.co.recipick.dashboard.recipe.RecipeUploadVO">
+    SELECT * 
+    FROM recipe 
+    WHERE title LIKE CONCAT('%', #{keyword}, '%') 
+    LIMIT #{offset}, #{pageSize}
+  </select>
+
+  <select id="getTotalCount" resultType="int">
+    SELECT COUNT(*) FROM recipe
+  </select>
+
+  <select id="getSearchTotalCount" parameterType="String" resultType="int">
+    SELECT COUNT(*) FROM recipe WHERE title LIKE CONCAT('%', #{keyword}, '%')
+  </select>
+    
+    
+    <delete id="deleteRecipeById" parameterType="int">
+        DELETE FROM recipe WHERE recipe_id = #{recipeId}
+    </delete>
+</mapper>
+

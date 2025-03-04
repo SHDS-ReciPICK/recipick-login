@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.co.recipick.cart.CartMapper">
+
+
+	<select id="getCartItems"
+		resultType="kr.co.recipick.cart.CartVO">
+		SELECT
+		c.cart_id AS cart_id,
+		c.member_id AS member_id,
+		c.recipe_id AS recipe_id,
+		c.ing_id AS ing_id,
+		c.qty AS qty,
+		c.category AS category,
+		c.update_dt AS update_dt,
+		i.name AS ing_name,
+		i.avg_gram AS ing_avg_gram,
+		i.discount AS ing_discount,
+		i.price AS ing_price,
+		i.image AS ing_img,
+		i.unit AS unit,
+		r.title AS rcp_title,
+		r.price AS rcp_price,
+		r.main_image AS rcp_img
+
+
+		FROM
+		cart c
+		LEFT JOIN
+		ingredient i
+		ON
+		c.ing_id = i.ing_id
+		LEFT JOIN
+		recipe r
+		ON
+		c.recipe_id = r.recipe_id
+		WHERE
+		c.member_id = #{member_id};
+	</select>
+
+
+	<delete id="deleteCartItem">
+		DELETE FROM cart
+		WHERE cart_id = #{id}
+	</delete>
+
+	<delete id="deleteRecipeOptions">
+		DELETE FROM recipe_option_update
+		WHERE cart_id = #{id}
+	</delete>
+
+
+	<update id="updateCartItemQty">
+		UPDATE cart
+		SET qty = #{qty}
+		WHERE cart_id = #{cartId}
+	</update>
+
+
+	<update id="updateRecipeOptionQty">
+		UPDATE recipe_option_update
+		SET upd_qty = #{upd_qty}
+		WHERE rou_id = #{rou_id}
+	</update>
+
+
+	<select id="findRecipeOptionQty"
+		resultType="kr.co.recipick.cart.RecipeOptionVO">
+		SELECT *
+		FROM recipe_option_update
+		WHERE cart_id = #{cartId}
+	</select>
+
+
+	<select id="checkCartItem" parameterType="map"
+		resultType="boolean">
+		SELECT EXISTS (
+		SELECT 1
+		FROM cart
+		WHERE member_id = #{memberId}
+		AND (
+		(category = 1 AND recipe_id = #{id}) -- category가 1이면 레시피
+		OR (category = 0 AND ing_id = #{id}) -- category가 0이면 식재료
+		)
+		AND category = #{category} -- category 일치 확인
+		)
+	</select>
+
+	<select id="findRecipeOption"
+		resultType="kr.co.recipick.cart.RecipeOptionVO">
+		SELECT
+		rou.ri_id,
+		rou.ing_id,
+		rou.upd_qty,
+		i.name,
+		i.unit,
+		i.price,
+		i.discount
+		FROM
+		recipe_option_update rou
+		JOIN
+		ingredient i
+		ON
+		rou.ing_id = i.ing_id
+		WHERE
+		rou.cart_id = #{cartId}
+	</select>
+
+	<insert id="insertRecipeOption" useGeneratedKeys="true"
+		keyProperty="optionItem.rou_id">
+		INSERT INTO recipe_option_update (
+		cart_id, member_id, ri_id, recipe_id, ing_id, upd_qty
+		)
+		VALUES (
+		#{cartItem.cart_id},
+		#{cartItem.member_id},
+		(SELECT ri_id
+		FROM recipe_ingredient
+		WHERE recipe_id = #{cartItem.recipe_id}
+		AND ing_id = #{optionItem.ing_id}),
+		#{cartItem.recipe_id},
+		#{optionItem.ing_id},
+		#{optionItem.upd_qty}
+		)
+	</insert>
+
+	<insert id="insertCartItem"
+		parameterType="kr.co.recipick.cart.CartVO" useGeneratedKeys="true"
+		keyProperty="cart_id">
+		INSERT INTO cart (member_id, recipe_id, ing_id, qty, category, update_dt)
+		VALUES (#{member_id}, #{recipe_id}, #{ing_id}, #{qty}, #{category},
+		NOW())
+	</insert>
+
+	<update id="updateOptionQty">
+		UPDATE recipe_option_update
+		SET upd_qty = #{qty}
+		WHERE cart_id = #{cartId}
+		AND ri_id = #{riId}
+	</update>
+
+	<select id="findQty" resultType="Integer">
+		SELECT qty
+		FROM cart
+		WHERE cart_id = #{cartId}
+	</select>
+
+	<select id="findUnmatchedOptions" resultType="Integer">
+		SELECT c.cart_id
+		FROM cart c
+		WHERE c.member_id = #{memberId}
+		AND c.recipe_id = #{recipeId}
+		AND NOT EXISTS (
+		SELECT 1
+		FROM recipe_option_update ru
+		WHERE ru.cart_id = c.cart_id
+		AND (ru.ing_id, ru.upd_qty) NOT IN (
+		<foreach collection="options" item="option" separator=",">
+			(#{option.ing_id}, #{option.ing_qty})
+		</foreach>
+		)
+		)
+		LIMIT 1
+	</select>
+	
+	<select id="getTotalIngredientWeight" resultType="kr.co.recipick.cart.TotalCartIngVO">
+	    SELECT
+	        ing_name,
+	        SUM(total_weight) AS total_weight
+	    FROM (
+	        SELECT
+	            i.name AS ing_name,
+	            (i.unit * rou.upd_qty * c.qty) AS total_weight
+	        FROM
+	            cart c
+	        JOIN
+	            recipe_option_update rou ON c.cart_id = rou.cart_id
+	        JOIN
+	            ingredient i ON rou.ing_id = i.ing_id
+	        WHERE
+	            c.member_id = #{member_id} AND c.category = 1 
+	
+	        UNION ALL
+	
+	        SELECT
+	            i.name AS ing_name,
+	            (i.avg_gram * c.qty) AS total_weight
+	        FROM
+	            cart c
+	        JOIN
+	            ingredient i ON c.ing_id = i.ing_id
+	        WHERE
+	            c.member_id = #{member_id} AND c.category = 0
+	    ) AS combined
+	    GROUP BY
+	        ing_name
+	    ORDER BY
+	        total_weight DESC
+	</select>
+	
+	<select id="findItem" resultType="Integer">
+		SELECT cart_id
+		FROM cart
+		WHERE
+		member_id = #{memberId}
+		AND (
+		(category = 1 AND recipe_id = #{itemId})
+		OR
+		(category = 0 AND ing_id = #{itemId})
+		)
+		LIMIT 1
+	</select>
+
+	<delete id="deleteCartByMemberId" parameterType="int">
+		DELETE FROM cart
+		WHERE member_id = #{memberId}
+	</delete>
+	
+</mapper>

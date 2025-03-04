@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.recipick.checkout.CheckoutMapper">
+
+
+	<select id="getOrdererInfo" parameterType="int"
+		resultType="kr.co.recipick.checkout.OrdererVO">
+		SELECT
+		email,
+		nickname,
+		name,
+		phone,
+		address
+		FROM
+		member
+		WHERE
+		member_id = #{memberId};
+	</select>
+
+	<insert id="insertOrderHistory"
+		parameterType="kr.co.recipick.checkout.OrderVO">
+		INSERT INTO order_history (
+		member_id,
+		order_state,
+		delivery_status,
+		payment_method,
+		delivery_date,
+		order_date,
+		category,
+		title,
+		qty,
+		recipe_id,
+		ing_id,
+		address
+		) VALUES (
+		#{memberId},
+		#{orderState},
+		#{deliveryStatus},
+		#{paymentMethod},
+		#{deliveryDate},
+		#{orderDate},
+		#{category},
+		#{title},
+		#{qty},
+		#{recipeId},
+		#{ingId},
+		#{address}
+		)
+	</insert>
+
+
+
+
+
+</mapper>

@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.recipick.community.CommunityMapper">
+
+	<!-- 한 페이지 게시글 목록 (페이징) -->
+	<select id="communityList" parameterType="map" resultType="kr.co.recipick.community.CommunityVO">
+	    SELECT post_id, poster_id, title, post_datetime, view, post_content,
+	        (SELECT nickname FROM member WHERE member_id = post.poster_id) AS posterNickname,
+	        (SELECT img_url FROM post_image WHERE post_id = post.post_id ORDER BY img_no LIMIT 1) AS coverImage,
+	        (SELECT COUNT(*) FROM reply WHERE post_id = post.post_id) AS countReply
+	    FROM post
+	    <choose>
+	        <when test="sort == 'reply'">
+	            ORDER BY countReply DESC, post_datetime DESC
+	        </when>
+	        <when test="sort == 'view'">
+	            ORDER BY view DESC, post_datetime DESC
+	        </when>
+	        <otherwise>
+	            ORDER BY post_datetime DESC
+	        </otherwise>
+	    </choose>
+	    LIMIT #{startIndex}, #{pageSize}
+	</select>
+	
+	<!-- 게시글 상세 -->
+	<select id="postDetail" parameterType="int" resultType="kr.co.recipick.community.CommunityVO">
+		SELECT post_id, poster_id, title, post_datetime, view, post_content,
+			(SELECT nickname FROM member WHERE member_id = post.poster_id) AS posterNickname,
+			(SELECT img_url FROM post_image WHERE post_id = post.post_id ORDER BY img_no LIMIT 1) AS coverImage,
+			(SELECT COUNT(*) FROM reply WHERE post_id = post.post_id) AS countReply
+		FROM post 
+		WHERE post_id = #{post_id}
+	</select>
+	
+	<!-- 게시글 사진 목록 -->
+	<select id="postImageList" parameterType="int" resultType="kr.co.recipick.community.CommunityVO">
+		SELECT post_image_id, poster_id, post_id, img_no, img_url
+		FROM post_image
+		WHERE post_id = #{post_id}
+	</select>
+	
+	<!-- 게시글 작성 -->
+	<insert id="writePost" parameterType="kr.co.recipick.community.CommunityVO">
+		INSERT INTO post (poster_id, title, post_datetime, view, post_content)
+		VALUES (#{poster_id}, #{title}, #{post_datetime}, 0, #{post_content})
+		<selectKey order="AFTER" keyProperty="post_id" resultType="int">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+	</insert>
+	
+	<!-- 게시글 사진 첨부 -->
+	<insert id="attachImage" parameterType="kr.co.recipick.community.CommunityVO">
+		INSERT INTO post_image (poster_id, post_id, img_no, img_url)
+		VALUES (#{poster_id}, #{post_id}, #{img_no}, #{img_url})
+		<selectKey order="AFTER" keyProperty="post_image_id" resultType="int">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+	</insert>
+	
+	<!-- 게시글 조회수 증가 -->
+	<update id="increaseView" parameterType="int">
+		UPDATE post 
+		SET view = view + 1 
+		WHERE post_id = #{post_id}
+	</update>
+	
+	<!-- 전체 게시글 수 조회 -->
+	<select id="countPost" resultType="int">
+		SELECT COUNT(*)
+		FROM post
+	</select>
+	
+	<!-- 게시글 수정 -->
+	<update id="updatePost" parameterType="kr.co.recipick.community.CommunityVO">
+		UPDATE post 
+		SET title = #{title}, post_content = #{post_content}
+		WHERE post_id = #{post_id}
+	</update>
+	
+	<!-- 게시글 삭제 -->
+	<delete id="deletePost" parameterType="int">
+		DELETE 
+		FROM post 
+		WHERE post_id = #{post_id}
+	</delete>
+	
+	<!-- 게시글에 첨부된 사진 삭제 -->
+	<delete id="deletePostImage" parameterType="int">
+		DELETE 
+		FROM post_image
+		WHERE post_id = #{post_id}
+	</delete>
+	
+	<!-- 게시글에 달린 댓글 삭제 -->
+	<delete id="deletePostReply" parameterType="int">
+		DELETE 
+		FROM reply
+		WHERE post_id = #{post_id}
+	</delete>
+	
+	<!-- 댓글 목록 -->
+	<select id="replyList" parameterType="int" resultType="kr.co.recipick.community.CommunityVO">
+		SELECT reply_id, post_id, poster_id, commenter_id, reply_content, reply_datetime,
+			(SELECT nickname FROM member WHERE member_id = reply.commenter_id) AS commenterNickname 
+		FROM reply 
+		WHERE post_id = #{post_id}
+		ORDER BY reply_datetime
+	</select>
+	
+	<!-- 댓글 상세 -->
+	<select id="replyDetail" parameterType="int" resultType="kr.co.recipick.community.CommunityVO">
+	    SELECT reply_id, commenter_id
+	    FROM reply
+	    WHERE reply_id = #{reply_id}
+	</select>
+	
+	<!-- 댓글 작성 -->
+	<insert id="writeReply" parameterType="kr.co.recipick.community.CommunityVO">
+		INSERT INTO reply (post_id, poster_id, commenter_id, reply_content, reply_datetime)
+		VALUES (#{post_id}, #{poster_id}, #{commenter_id}, #{reply_content}, now())
+		<selectKey order="AFTER" keyProperty="reply_id" resultType="int">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+	</insert>
+	
+	<!-- 댓글 수정 -->
+	<update id="updateReply" parameterType="kr.co.recipick.community.CommunityVO">
+		UPDATE reply
+		SET reply_content = #{reply_content}
+		WHERE reply_id = #{reply_id}
+		AND commenter_id = #{commenter_id}
+	</update>
+	
+	<!-- 댓글 삭제 -->
+	<delete id="deleteReply" parameterType="int">
+		DELETE
+		FROM reply 
+		WHERE reply_id = #{reply_id}
+	</delete>
+	
+	<!-- 특정 이미지 하나 삭제 -->
+	<delete id="deleteSingleImage" parameterType="int">
+		DELETE 
+		FROM post_image 
+		WHERE post_image_id = #{post_image_id}
+	</delete>
+	
+	<!-- 특정 이미지 상세 -->
+	<select id="singleImageDetail" parameterType="int" resultType="kr.co.recipick.community.CommunityVO">
+		SELECT post_image_id, poster_id, post_id, img_no, img_url
+		FROM post_image 
+		WHERE post_image_id = #{post_image_id}
+	</select>
+	
+	<!-- img_no 재정렬 -->
+	<update id="updateImageNo" parameterType="kr.co.recipick.community.CommunityVO">
+	    UPDATE post_image
+	    SET img_no = #{img_no}
+	    WHERE post_image_id = #{post_image_id}
+	</update>
+
+	<select id="myrecipeList" parameterType="map"
+		resultType="kr.co.recipick.community.CommunityVO">
+		SELECT 
+    post.post_id, 
+    post.poster_id, 
+    post.title, 
+    post.post_datetime,
+    post.view, 
+    post.post_content, 
+    (SELECT img_url 
+     FROM post_image 
+     WHERE post_id = post.post_id 
+     ORDER BY img_url ASC 
+     LIMIT 1) AS img_url, -- img_url을 오름차순으로 정렬하여 하나만 선택
+    (SELECT nickname 
+     FROM member 
+     WHERE member_id = post.poster_id) AS posterNickname,
+    (SELECT img_url 
+     FROM post_image 
+     WHERE post_id = post.post_id 
+     ORDER BY img_no 
+     LIMIT 1) AS coverImage, -- 기존의 coverImage 로직 유지
+    (SELECT COUNT(*) 
+     FROM reply 
+     WHERE post_id = post.post_id) AS countReply
+FROM 
+    post
+WHERE 
+    post.poster_id = #{member_id}
+		<choose>
+			<when test="sort == 'reply'">
+				ORDER BY countReply DESC, post_datetime DESC
+			</when>
+			<when test="sort == 'view'">
+				ORDER BY view DESC, post_datetime DESC
+			</when>
+			<otherwise>
+				ORDER BY post_datetime DESC
+			</otherwise>
+		</choose>
+		LIMIT #{startIndex}, #{pageSize}
+	</select>
+	<select id="countPostMyrecipe" resultType="int"
+		parameterType="int">
+		SELECT COUNT(*)
+		FROM post
+		where poster_id= #{member_id}
+	</select>
+	<select id="detail"
+		resultType="kr.co.recipick.community.CommunityVO" parameterType="int">
+		SELECT * FROM member WHERE member_id=#{member_id}
+	</select>
+</mapper>

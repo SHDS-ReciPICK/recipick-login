@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper
+	namespace="kr.co.recipick.product.ingredient.IngredientMapper">
+
+	<!-- 전체 개수 조회 -->
+	<select id="countIngredients" resultType="int">
+		SELECT COUNT(DISTINCT i.ing_id)
+		FROM ingredient i
+		LEFT JOIN
+		ing_category_group c ON
+		i.ing_id = c.ing_id
+		<where>
+			<!-- 검색 조건 -->
+			<if test="viewType == 'search'">
+				<choose>
+					<when test="searchType == 'all'">
+						AND (
+						i.name LIKE CONCAT('%', #{searchWord}, '%')
+						OR
+						i.detail LIKE CONCAT('%', #{searchWord}, '%')
+						OR i.keyword LIKE
+						CONCAT('%', #{searchWord}, '%')
+						)
+					</when>
+					<when test="searchType == 'name'">
+						AND i.name LIKE CONCAT('%', #{searchWord}, '%')
+					</when>
+					<when test="searchType == 'detail'">
+						AND i.detail LIKE CONCAT('%', #{searchWord}, '%')
+					</when>
+				</choose>
+			</if>
+
+			<!-- 카테고리 필터링 통합 조건 -->
+			<choose>
+				<!-- 다중 카테고리 선택 케이스 -->
+				<when
+					test="selectedCategories != null and selectedCategories.size() > 0">
+					AND EXISTS (
+					SELECT 1
+					FROM ing_category_group c
+					WHERE c.ing_id
+					=
+					i.ing_id
+					AND (
+					<foreach item="category" collection="selectedCategories"
+						separator="OR">
+						(c.ing_main = #{category.main}
+						<if test="category.sub != null">
+							AND c.ing_sub = #{category.sub}
+						</if>
+						<if test="category.detail != null">
+							AND c.ing_detail = #{category.detail}
+						</if>
+						)
+					</foreach>
+					)
+					)
+				</when>
+				<!-- 단일 카테고리 선택 케이스 -->
+				<when test="viewType == 'category' and ing_main != null">
+					AND c.ing_main = #{ing_main}
+					<if test="ing_sub != null">
+						AND c.ing_sub = #{ing_sub}
+					</if>
+					<if test="ing_detail != null">
+						AND c.ing_detail = #{ing_detail}
+					</if>
+				</when>
+			</choose>
+
+			<!-- 가격 필터링 조건 -->
+			<if test="minPrice != null and minPrice gt 0">
+				AND (CASE
+				WHEN i.avg_gram <![CDATA[>=]]>
+				CAST(i.unit AS INTEGER)
+				THEN (i.avg_gram / CAST(i.unit AS INTEGER)) *
+				i.price * (100 -
+				i.discount) / 100
+				ELSE i.price * (100 - i.discount) /
+				100
+				END) >= #{minPrice}
+			</if>
+			<if test="maxPrice != null and maxPrice gt 0">
+				AND (CASE
+				WHEN i.avg_gram <![CDATA[>=]]>
+				CAST(i.unit AS INTEGER)
+				THEN (i.avg_gram / CAST(i.unit AS INTEGER)) *
+				i.price * (100 -
+				i.discount) / 100
+				ELSE i.price * (100 - i.discount) /
+				100
+				END) <![CDATA[<=]]>
+				#{maxPrice}
+			</if>
+			<!-- <if test="minPrice != null and minPrice gt 0"> AND i.price <![CDATA[>=]]> 
+				#{minPrice} </if> <if test="maxPrice != null and maxPrice gt 0"> AND i.price 
+				<![CDATA[<=]]> #{maxPrice} </if> -->
+		</where>
+	</select>
+
+	<!-- 상품 목록 조회 -->
+	<select id="getIngredientList"
+		resultType="kr.co.recipick.product.ingredient.IngredientVO">
+
+		SELECT DISTINCT i.*, c.ing_main, c.ing_sub, c.ing_detail
+		FROM
+		ingredient i
+		LEFT JOIN ing_category_group c ON i.ing_id = c.ing_id
+		<where>
+			<if test="viewType == 'discount'">
+				i.discount > 0
+			</if>
+
+			<!-- 카테고리 필터링 통합 조건 -->
+			<choose>
+				<!-- 다중 카테고리 선택 케이스 -->
+				<when
+					test="selectedCategories != null and selectedCategories.size() > 0">
+					AND EXISTS (
+					SELECT 1
+					FROM ing_category_group c
+					WHERE c.ing_id
+					=
+					i.ing_id
+					AND (
+					<foreach item="category" collection="selectedCategories"
+						separator="OR">
+						(c.ing_main = #{category.main}
+						<if test="category.sub != null">
+							AND c.ing_sub = #{category.sub}
+						</if>
+						<if test="category.detail != null">
+							AND c.ing_detail = #{category.detail}
+						</if>
+						)
+					</foreach>
+					)
+					)
+				</when>
+				<!-- 단일 카테고리 선택 케이스 -->
+				<when test="viewType == 'category' and ing_main != null">
+					AND c.ing_main = #{ing_main}
+					<if test="ing_sub != null">
+						AND c.ing_sub = #{ing_sub}
+					</if>
+					<if test="ing_detail != null">
+						AND c.ing_detail = #{ing_detail}
+					</if>
+				</when>
+			</choose>
+
+			<!-- 검색 조건 -->
+			<if test="searchWord != null and searchWord != ''">
+				AND (
+				i.name LIKE CONCAT('%', #{searchWord}, '%')
+				OR
+				i.detail LIKE CONCAT('%', #{searchWord}, '%')
+				)
+			</if>
+
+			<!-- 가격 필터링 -->
+			<if test="minPrice != null and minPrice gt 0">
+				AND (CASE
+				WHEN i.avg_gram <![CDATA[>=]]>
+				CAST(i.unit AS INTEGER)
+				THEN (i.avg_gram / CAST(i.unit AS INTEGER)) *
+				i.price * (100 -
+				i.discount) / 100
+				ELSE i.price * (100 - i.discount) /
+				100
+				END) >= #{minPrice}
+			</if>
+			<if test="maxPrice != null and maxPrice gt 0">
+				AND (CASE
+				WHEN i.avg_gram <![CDATA[>=]]>
+				CAST(i.unit AS INTEGER)
+				THEN (i.avg_gram / CAST(i.unit AS INTEGER)) *
+				i.price * (100 -
+				i.discount) / 100
+				ELSE i.price * (100 - i.discount) /
+				100
+				END) <![CDATA[<=]]>
+				#{maxPrice}
+			</if>
+			<!-- <if test="minPrice != null and minPrice > 0"> AND i.price <![CDATA[>=]]> 
+				#{minPrice} </if> <if test="maxPrice != null and maxPrice > 0"> AND i.price 
+				<![CDATA[<=]]> #{maxPrice} </if> -->
+		</where>
+		GROUP BY i.ing_id
+
+		<!-- 정렬 조건 -->
+		<choose>
+			<!-- discount 뷰 타입일 경우 -->
+			<when test="viewType == 'discount'">
+				ORDER BY i.discount DESC
+			</when>
+
+			<!-- sortType이 있을 경우 -->
+			<when test="sortType != null">
+				<choose>
+					<when test="sortType == 'newest'">
+						ORDER BY i.ing_id DESC
+					</when>
+					<when test="sortType == 'sales'">
+						ORDER BY i.stock ASC
+					</when>
+					<otherwise>
+						ORDER BY i.ing_id DESC
+					</otherwise>
+				</choose>
+			</when>
+		</choose>
+		LIMIT #{startIdx}, #{perPage}
+	</select>
+
+	<!-- 제철 식재료 조회 쿼리 추가 -->
+	<select id="getSeasonlyIngredients"
+		resultType="kr.co.recipick.product.ingredient.IngredientVO">
+		SELECT i.*, c.ing_main, c.ing_sub, c.ing_detail
+		FROM
+		ingredient i
+		LEFT JOIN ing_category_group c ON i.ing_id = c.ing_id
+		WHERE i.season = #{season} OR i.season = '사계절'
+		ORDER BY i.ing_id DESC
+		LIMIT #{startIdx}, #{perPage}
+	</select>
+
+	<!-- 제철 식재료 개수 조회 쿼리 추가 -->
+	<select id="countSeasonlyIngredients" resultType="int">
+		SELECT
+		COUNT(DISTINCT i.ing_id)
+		FROM ingredient i
+		WHERE i.season =
+		#{currentSeason} OR i.season = '사계절'
+	</select>
+
+	<!-- 베스트 레시피 조회 -->
+	<select id="getBestIngredients"
+		resultType="kr.co.recipick.product.ingredient.IngredientVO">
+		SELECT i.*,
+		COALESCE(sales.total_qty, 0) as totalSales
+		FROM
+		ingredient i
+		LEFT JOIN (
+		SELECT oh.ing_id,
+		SUM(oh.qty) as total_qty
+		FROM
+		order_history oh
+		GROUP BY oh.ing_id
+		) sales
+		ON i.ing_id = sales.ing_id
+		ORDER BY totalSales DESC
+		LIMIT 12
+
+	</select>
+
+	<!-- 할인 상품 카운트 -->
+	<select id="countDiscountIngredients" resultType="int">
+		SELECT
+		COUNT(DISTINCT i.ing_id)
+		FROM ingredient i
+		WHERE i.discount > 0
+	</select>
+
+</mapper>

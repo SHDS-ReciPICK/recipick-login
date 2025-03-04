@@ -1,0 +1,429 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.recipick.product.recipe.RecipeMapper">
+
+	<!-- 레시피 수 조회 -->
+	<select id="countRecipes"
+		parameterType="kr.co.recipick.product.recipe.RecipeVO"
+		resultType="int">
+		SELECT COUNT(DISTINCT r.recipe_id)
+		FROM recipe r
+		LEFT JOIN
+		recipe_category_group c ON r.recipe_id = c.recipe_id
+		<where>
+			<!-- 카테고리 필터링 통합 조건 -->
+			<choose>
+				<!-- 다중 카테고리 선택 케이스 -->
+				<when
+					test="selectedCategories != null and selectedCategories.size() > 0">
+					EXISTS (
+					SELECT 1
+					FROM recipe_category_group c2
+					WHERE c2.recipe_id =
+					r.recipe_id
+					AND (
+					<foreach item="category" collection="selectedCategories"
+						separator="OR">
+						(c2.recipe_main = #{category.main}
+						<if test="category.sub != null">
+							AND c2.recipe_sub = #{category.sub}
+						</if>
+						<if test="category.detail != null">
+							AND c2.recipe_detail = #{category.detail}
+						</if>
+						)
+					</foreach>
+					)
+					)
+				</when>
+				<!-- 단일 카테고리 선택 케이스 -->
+				<when test="viewType == 'category' and recipe_main != null">
+					c.recipe_main = #{recipe_main}
+					<if test="recipe_sub != null">
+						AND c.recipe_sub = #{recipe_sub}
+					</if>
+					<if test="recipe_detail != null">
+						AND c.recipe_detail = #{recipe_detail}
+					</if>
+				</when>
+			</choose>
+
+			<!-- 검색 조건 -->
+			<if test="viewType == 'search'">
+				<choose>
+					<when test="searchType == 'all'">
+						AND (
+						r.title LIKE CONCAT('%', #{searchWord}, '%')
+						OR r.description LIKE CONCAT('%', #{searchWord}, '%')
+						OR EXISTS (
+						SELECT 1
+						FROM tag t
+						WHERE t.recipe_id = r.recipe_id
+						AND t.tag_name
+						LIKE CONCAT('%', #{searchWord}, '%')
+						)
+						)
+					</when>
+					<when test="searchType == 'title'">
+						AND r.title LIKE CONCAT('%', #{searchWord}, '%')
+					</when>
+					<when test="searchType == 'content'">
+						AND r.description LIKE CONCAT('%', #{searchWord},
+						'%')
+					</when>
+					<when test="searchType == 'tag'">
+						AND EXISTS (
+						SELECT 1
+						FROM tag t
+						WHERE t.recipe_id =
+						r.recipe_id
+						AND t.tag_name LIKE CONCAT('%', #{searchWord}, '%')
+						)
+					</when>
+				</choose>
+			</if>
+
+			<!-- 가격 필터링 조건 -->
+			<if test="minPrice != null and minPrice gt 0">
+				AND ( SELECT COALESCE(SUM(ri.ing_times
+				* (i.price * (1 -
+				COALESCE(i.discount, 0)/100))), 0) FROM
+				recipe_ingredient
+				ri INNER
+				JOIN ingredient i ON ri.ing_id = i.ing_id WHERE ri.recipe_id
+				=
+				r.recipe_id
+				) <![CDATA[>=]]>
+				#{minPrice}
+			</if>
+			<if test="maxPrice != null and maxPrice 
+				gt 0">
+				AND ( SELECT COALESCE(SUM(ri.ing_times * (i.price * (1 -
+				COALESCE(i.discount,
+				0)/100))), 0) FROM recipe_ingredient ri INNER
+				JOIN ingredient i ON ri.ing_id
+				= i.ing_id WHERE ri.recipe_id =
+				r.recipe_id ) <![CDATA[<=]]>
+				#{maxPrice}
+			</if>
+
+			<!-- 평점 필터링 조건 -->
+			<if test="ratings != null and ratings.size() > 0">
+				AND FLOOR(
+				COALESCE((
+				SELECT AVG(rv.star_rating)
+				FROM recipe_review rv
+				WHERE rv.recipe_id = r.recipe_id
+				), 0)
+				) IN
+				<foreach item="rating" collection="ratings" open="("
+					separator="," close=")">
+					#{rating}
+				</foreach>
+			</if>
+		</where>
+	</select>
+
+	<!-- 레시피 목록 조회 -->
+	<select id="getRecipeList"
+		parameterType="kr.co.recipick.product.recipe.RecipeVO"
+		resultType="kr.co.recipick.product.recipe.RecipeVO">
+		SELECT DISTINCT
+		r.*,
+		COUNT(DISTINCT rl.member_id) as likes_count,
+		COALESCE(AVG(rv.star_rating), 0) as avg_rating,
+		COUNT(DISTINCT
+		rv.review_id) as review_count,
+		disc.avg_discount_rate
+		FROM recipe r
+		LEFT
+		JOIN recipe_category_group c ON r.recipe_id = c.recipe_id
+		LEFT JOIN
+		recipe_like rl ON r.recipe_id = rl.recipe_id
+		LEFT JOIN recipe_review rv
+		ON r.recipe_id = rv.recipe_id
+		LEFT JOIN (
+		SELECT
+		ri.recipe_id,
+		AVG(i.discount) as avg_discount_rate
+		FROM recipe_ingredient ri
+		INNER
+		JOIN ingredient i ON ri.ing_id = i.ing_id
+		GROUP BY ri.recipe_id
+		) disc
+		ON r.recipe_id = disc.recipe_id
+		<where>
+			<if test="viewType == 'discount'">
+				EXISTS (
+				SELECT 1
+				FROM recipe_ingredient ri2
+				INNER JOIN
+				ingredient i2 ON ri2.ing_id = i2.ing_id
+				WHERE ri2.recipe_id =
+				r.recipe_id
+				AND i2.discount > 0
+				)
+			</if>
+
+			<!-- 카테고리 필터링 통합 조건 -->
+			<choose>
+				<!-- 다중 카테고리 선택 케이스 -->
+				<when
+					test="selectedCategories != null and selectedCategories.size() > 0">
+					AND EXISTS (
+					SELECT 1
+					FROM recipe_category_group c2
+					WHERE c2.recipe_id
+					= r.recipe_id
+					AND (
+					<foreach item="category" collection="selectedCategories"
+						separator="OR">
+						(c2.recipe_main = #{category.main}
+						<if test="category.sub != null">
+							AND c2.recipe_sub = #{category.sub}
+						</if>
+						<if test="category.detail != null">
+							AND c2.recipe_detail = #{category.detail}
+						</if>
+						)
+					</foreach>
+					)
+					)
+				</when>
+				<!-- 단일 카테고리 선택 케이스 -->
+				<when test="viewType == 'category' and recipe_main != null">
+					AND c.recipe_main = #{recipe_main}
+					<if test="recipe_sub != null">
+						AND c.recipe_sub = #{recipe_sub}
+					</if>
+					<if test="recipe_detail != null">
+						AND c.recipe_detail = #{recipe_detail}
+					</if>
+				</when>
+			</choose>
+
+			<!-- 검색 조건 -->
+			<if test="viewType == 'search'">
+				<choose>
+					<when test="searchType == 'tag'">
+						AND EXISTS (
+						SELECT 1
+						FROM tag t
+						WHERE t.recipe_id =
+						r.recipe_id
+						AND t.tag_name LIKE CONCAT('%', #{searchWord}, '%')
+						)
+					</when>
+					<when test="searchType == 'all'">
+						AND (
+						r.title LIKE CONCAT('%', #{searchWord}, '%')
+						OR r.description LIKE CONCAT('%', #{searchWord}, '%')
+						OR EXISTS (
+						SELECT 1
+						FROM tag t
+						WHERE t.recipe_id = r.recipe_id
+						AND t.tag_name
+						LIKE CONCAT('%', #{searchWord}, '%')
+						)
+						)
+					</when>
+					<when test="searchType == 'title'">
+						AND r.title LIKE CONCAT('%', #{searchWord}, '%')
+					</when>
+					<when test="searchType == 'content'">
+						AND r.description LIKE CONCAT('%', #{searchWord},
+						'%')
+					</when>
+				</choose>
+			</if>
+
+			<!-- 가격 필터링 조건 -->
+			<if test="minPrice != null and minPrice gt 0">
+				AND (
+				SELECT COALESCE(SUM(ri.ing_times * (i.price * (1 -
+				COALESCE(i.discount,
+				0)/100))), 0)
+				FROM recipe_ingredient ri
+				INNER JOIN
+				ingredient i ON ri.ing_id = i.ing_id
+				WHERE ri.recipe_id = r.recipe_id
+				) <![CDATA[>=]]>
+				#{minPrice}
+			</if>
+
+			<if test="maxPrice != null and maxPrice gt 0">
+				AND (
+				SELECT COALESCE(SUM(ri.ing_times * (i.price * (1 -
+				COALESCE(i.discount,
+				0)/100))), 0)
+				FROM recipe_ingredient ri
+				INNER JOIN
+				ingredient i ON ri.ing_id = i.ing_id
+				WHERE ri.recipe_id = r.recipe_id
+				) <![CDATA[<=]]>
+				#{maxPrice}
+			</if>
+
+			<!-- 평점 필터링 조건 -->
+			<if test="ratings != null and ratings.size() > 0">
+				AND FLOOR(
+				COALESCE((
+				SELECT AVG(rv.star_rating)
+				FROM recipe_review rv
+				WHERE rv.recipe_id = r.recipe_id
+				), 0)
+				) IN
+				<foreach item="rating" collection="ratings" open="("
+					separator="," close=")">
+					#{rating}
+				</foreach>
+			</if>
+		</where>
+		GROUP BY r.recipe_id
+
+		<choose>
+			<!-- discount 뷰 타입일 경우 -->
+			<when test="viewType == 'discount'">
+				ORDER BY avg_discount_rate DESC
+			</when>
+			<!-- sortType이 있을 경우 -->
+			<when test="sortType != null">
+				ORDER BY
+				<choose>
+					<when test="sortType == 'popular'">likes_count DESC</when>
+					<when test="sortType == 'newest'">r.recipe_id DESC</when>
+					<when test="sortType == 'rating'">avg_rating DESC</when>
+					<when test="sortType == 'review'">review_count DESC</when>
+					<otherwise>r.recipe_id DESC</otherwise>
+				</choose>
+			</when>
+			<!-- 기본 정렬 -->
+			<otherwise>
+				ORDER BY r.recipe_id DESC
+			</otherwise>
+		</choose>
+		LIMIT #{startIdx}, #{perPage}
+	</select>
+
+	<!-- 레시피 재료 정보 조회 -->
+	<select id="getRecipeIngredients"
+		resultType="kr.co.recipick.product.recipe.RecipeIngredientVO">
+		SELECT
+		ri.ri_id,
+		ri.recipe_id,
+		ri.ing_id,
+		ri.ing_times,
+		i.price,
+		i.discount
+		FROM recipe_ingredient ri
+		INNER JOIN ingredient i ON
+		ri.ing_id = i.ing_id
+		WHERE ri.recipe_id = #{recipe_id}
+	</select>
+
+	<!-- 태그 검색 -->
+	<select id="searchTagNames" resultType="String">
+		SELECT tag_name
+		FROM (
+		SELECT tag_name, COUNT(*) as usage_count
+		FROM tag
+		WHERE tag_name LIKE
+		CONCAT('%', #{keyword}, '%')
+		GROUP BY tag_name
+		) t
+		ORDER BY
+		CASE
+		WHEN
+		tag_name = #{keyword} THEN 0
+		WHEN tag_name LIKE CONCAT(#{keyword}, '%')
+		THEN 1
+		ELSE 2
+		END,
+		usage_count DESC,
+		tag_name ASC
+		LIMIT #{limit}
+	</select>
+
+	<!-- 레시피별 태그 조회 -->
+	<select id="getTagsByRecipeId"
+		resultType="kr.co.recipick.product.recipe.TagVO">
+		SELECT *
+		FROM tag
+		WHERE recipe_id = #{recipe_id}
+		ORDER BY
+		tag_name
+	</select>
+
+	<!-- 아달의 레시피 레시피 조회 -->
+	<select id="getMonthlyRecipes"
+		resultType="kr.co.recipick.product.recipe.RecipeVO">
+		SELECT r.*,
+		COUNT(l.recipe_id) as likes_count
+		FROM recipe r
+		LEFT JOIN recipe_like l ON r.recipe_id = l.recipe_id
+		GROUP BY
+		r.recipe_id
+		ORDER BY likes_count DESC
+		LIMIT 10
+	</select>
+
+	<!-- 베스트 레시피 조회 -->
+	<select id="getBestRecipes" resultType="kr.co.recipick.product.recipe.RecipeVO">
+	    SELECT r.*,
+	           COALESCE(sales.total_qty, 0) as totalSales,
+	           COALESCE(AVG(rv.star_rating), 0) as avg_rating,
+	           COUNT(DISTINCT rv.review_id) as review_count
+	    FROM recipe r
+	    LEFT JOIN (
+	        SELECT oh.recipe_id,
+	               SUM(oh.qty) as total_qty
+	        FROM order_history oh
+	        GROUP BY oh.recipe_id
+	    ) sales ON r.recipe_id = sales.recipe_id
+	    LEFT JOIN recipe_review rv ON r.recipe_id = rv.recipe_id
+	    GROUP BY r.recipe_id, sales.total_qty
+	    ORDER BY totalSales DESC
+	    LIMIT 12
+	</select>
+
+	<!-- 할인 상품 카운트 -->
+	<select id="countDiscountRecipes" resultType="int">
+		SELECT
+		COUNT(DISTINCT r.recipe_id)
+		FROM recipe r
+		INNER JOIN recipe_ingredient
+		ri ON r.recipe_id = ri.recipe_id
+		INNER JOIN ingredient i ON ri.ing_id =
+		i.ing_id
+		WHERE i.discount > 0
+	</select>
+
+	<select id="getRecentRecipe"
+		parameterType="kr.co.recipick.product.recipe.RecipeVO"
+		resultType="kr.co.recipick.product.recipe.RecipeVO">
+		SELECT
+		r.*,
+		COUNT(DISTINCT rl.member_id) AS likes_count,
+		COALESCE(AVG(rv.star_rating), 0) AS avg_rating,
+		COUNT(DISTINCT
+		rv.review_id) AS review_count
+		FROM recipe r
+		LEFT JOIN
+		recipe_category_group c ON r.recipe_id = c.recipe_id
+		LEFT JOIN
+		recipe_like rl ON r.recipe_id = rl.recipe_id
+		LEFT JOIN recipe_review rv
+		ON r.recipe_id = rv.recipe_id
+		INNER JOIN (
+		SELECT recipe_id
+		FROM
+		view_history
+		WHERE member_id = #{member_id}
+		ORDER BY viewed_time DESC
+		LIMIT 9
+		) AS recent_view ON r.recipe_id = recent_view.recipe_id
+		GROUP BY
+		r.recipe_id;
+	</select>
+
+</mapper>

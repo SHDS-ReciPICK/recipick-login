@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.recipick.home.HomeMapper">
+
+
+	<!-- 이번 주 인기 레시피 -->
+	<!-- <select id="selectRecipesWithLikeCount" resultType="kr.co.recipick.home.HomeVO"> 
+		SELECT r.recipe_id AS recipeId, r.title AS title, r.description AS description, 
+		r.thema, r.price, r.cooking_time AS cookingtime, r.serving_count AS servingcount, 
+		r.main_image AS mainimage, sq.like_count AS likeCount FROM recipe r INNER 
+		JOIN ( SELECT recipe_id, COUNT(*) AS like_count FROM recipe_like rl GROUP 
+		BY recipe_id ) sq ON r.recipe_id = sq.recipe_id ORDER BY sq.like_count DESC; 
+		</select> -->
+
+
+	<select id="selectRecipesWithLikeCount"
+		resultType="kr.co.recipick.home.HomeVO">
+		SELECT
+		r.recipe_id AS recipeId,
+		r.title AS title,
+		r.description AS description,
+		r.thema,
+		(SELECT SUM(ri.ing_times * i.price)
+		FROM recipe_ingredient ri
+		JOIN ingredient i ON ri.ing_id = i.ing_id
+		WHERE ri.recipe_id = r.recipe_id) AS price,
+		r.cooking_time AS cookingTime,
+		r.serving_count AS servingCount,
+		r.main_image AS mainImage,
+		sq.like_count AS likeCount,
+		COALESCE(AVG(rv.star_rating), 0) AS avgRating,
+		disc.avg_discount_rate AS avgDiscountRate,
+		COUNT(DISTINCT rv.review_id) AS reviewCount,
+		-- discount_price 계산
+		((SELECT SUM(ri.ing_times * i.price)
+		FROM recipe_ingredient ri
+		JOIN ingredient i ON ri.ing_id = i.ing_id
+		WHERE ri.recipe_id = r.recipe_id) *
+		(1 - COALESCE(disc.avg_discount_rate, 0) / 100)) AS discountPrice
+		FROM recipe r
+		INNER JOIN (
+		SELECT recipe_id, COUNT(*) AS like_count
+		FROM recipe_like rl
+		GROUP BY recipe_id
+		) sq ON r.recipe_id = sq.recipe_id
+		LEFT JOIN recipe_review rv ON r.recipe_id = rv.recipe_id
+		LEFT JOIN (
+		SELECT
+		ri.recipe_id,
+		AVG(i.discount) AS avg_discount_rate
+		FROM recipe_ingredient ri
+		INNER JOIN ingredient i ON ri.ing_id = i.ing_id
+		GROUP BY ri.recipe_id
+		) disc ON r.recipe_id = disc.recipe_id
+		GROUP BY
+		r.recipe_id,
+		r.title,
+		r.description,
+		r.thema,
+		r.cooking_time,
+		r.serving_count,
+		r.main_image,
+		sq.like_count,
+		disc.avg_discount_rate
+		ORDER BY sq.like_count DESC
+		LIMIT 4
+	</select>
+
+
+	<!-- 이번 주 인기 식재료 -->
+	<select id="getPopularIngredients"
+		resultType="kr.co.recipick.home.HomeIngredientVO">
+		SELECT ri.recipe_id, ri.ing_name, COUNT(*) AS
+		ingredient_count
+		FROM recipe_ingredient ri
+		INNER JOIN order_history oh
+		ON ri.recipe_id = oh.recipe_id
+		GROUP BY ri.recipe_id, ri.ing_name
+		ORDER
+		BY ingredient_count DESC
+		LIMIT 4
+	</select>
+
+
+
+</mapper>
+

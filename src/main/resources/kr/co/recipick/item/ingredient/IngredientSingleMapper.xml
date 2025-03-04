@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.recipick.item.ingredient.IngredientSingleMapper">
+
+	<!-- 식재료 1개에 대한 분류 -->
+	<select id="ingCategory" parameterType="int" resultType="kr.co.recipick.item.ingredient.IngredientSingleVO">
+		SELECT group_id, ing_id, ing_main, ing_sub, ing_detail
+		FROM ing_category_group
+		WHERE ing_id = #{ing_id}
+	</select>
+	
+	<!-- 식재료 상세 -->
+	<select id="ingDetail" parameterType="int" resultType="kr.co.recipick.item.ingredient.IngredientSingleVO">
+		SELECT ing_id, name, price, avg_gram, stock, discount, code, origin, supplier, keyword, image, detail, unit, season
+		FROM ingredient 
+		WHERE ing_id = #{ing_id}
+	</select>
+	
+	<!-- 식재료 영양성분 -->
+	<select id="ingNutrient" parameterType="int" resultType="kr.co.recipick.item.ingredient.IngredientSingleVO">
+		SELECT ing_nutrient_id, ing_id, calories, carbohydrate, sugars, fat, protein, moisture, sol_fiber, insol_fiber, fiber, ash, caution, storage
+		FROM ing_nutrient
+		WHERE ing_id = #{ing_id}
+	</select>
+</mapper>
