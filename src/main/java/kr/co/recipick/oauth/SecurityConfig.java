@@ -12,6 +12,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+
+//기본 security 설정
 @Configuration
 @EnableWebSecurity
 @Order(2)  // AuthorizationServer가 1, 이 설정이 2

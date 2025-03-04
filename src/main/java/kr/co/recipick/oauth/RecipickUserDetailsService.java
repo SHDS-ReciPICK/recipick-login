@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import kr.co.recipick.member.MemberMapper;
 import kr.co.recipick.member.MemberVO;
 
+//사용자 인증 로직
 @Service
 public class RecipickUserDetailsService implements UserDetailsService {
 
