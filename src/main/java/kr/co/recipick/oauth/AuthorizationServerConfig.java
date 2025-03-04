@@ -1,7 +1,11 @@
-package config;
+package kr.co.recipick.oauth;
+
+import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
@@ -12,13 +16,9 @@ import org.springframework.security.oauth2.config.annotation.web.configurers.Aut
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
 
-import javax.sql.DataSource;
-
-
-//레시픽을 OAuth2 인증 서버
-
 @Configuration
-@EnableAuthorizationServer // OAuth2 인증 서버 기능을 활성화
+@EnableAuthorizationServer
+@Order(1)
 public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdapter {
 
     @Autowired
@@ -30,9 +30,17 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     @Autowired
     private PasswordEncoder passwordEncoder;
     
-    //솔픽 클라이언트의 정보를 등록
+    @Autowired
+    private RecipickUserDetailsService userDetailsService;
+    
+    @Bean
+    public TokenStore tokenStore() {
+        return new JdbcTokenStore(dataSource);
+    }
+    
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
+        // 솔픽 클라이언트 정보 등록
         clients.inMemory()
                 .withClient("solpick-client")
                 .secret(passwordEncoder.encode("solpick-secret"))
@@ -40,19 +48,18 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
                 .scopes("read", "profile", "purchase_history")
                 .redirectUris("http://localhost:3000/oauth/callback")
                 .accessTokenValiditySeconds(3600)
-                .refreshTokenValiditySeconds(86400);
+                .refreshTokenValiditySeconds(86400)
+                .autoApprove(false);  // 사용자에게 권한 동의 화면 표시
     }
     
-    //토큰 저장소와 인증 매니저를 설정
     @Override
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
         endpoints
-                .tokenStore(new JdbcTokenStore(dataSource))
-                .authenticationManager(authenticationManager);
+                .tokenStore(tokenStore())
+                .authenticationManager(authenticationManager)
+                .userDetailsService(userDetailsService);
     }
     
-    
-    //큰 엔드포인트에 대한 보안 설정
     @Override
     public void configure(AuthorizationServerSecurityConfigurer security) throws Exception {
         security

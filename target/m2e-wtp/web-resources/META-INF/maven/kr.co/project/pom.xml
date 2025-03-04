@@ -224,13 +224,21 @@
 		<!-- oauth 관련 -->
 		<!-- Spring Security로 보안 처리가 되진 않고, 설정을 통해 OAuth 관련 엔드포인트에만 적용 기존 세션 기반 인증은 그대로 유지 -->
 		
-	<!-- Spring Security 의존성 수정 -->
+		<!-- Spring Security OAuth2 -->
 <dependency>
-    <groupId>org.springframework.security</groupId>
-    <artifactId>spring-security-core</artifactId>
-    <version>5.7.10</version>
+    <groupId>org.springframework.security.oauth</groupId>
+    <artifactId>spring-security-oauth2</artifactId>
+    <version>2.3.8.RELEASE</version>
 </dependency>
 
+<!-- JWT 토큰 지원 -->
+<dependency>
+    <groupId>org.springframework.security</groupId>
+    <artifactId>spring-security-jwt</artifactId>
+    <version>1.1.1.RELEASE</version>
+</dependency>
+
+<!-- Spring Security -->
 <dependency>
     <groupId>org.springframework.security</groupId>
     <artifactId>spring-security-web</artifactId>
@@ -241,40 +249,6 @@
     <groupId>org.springframework.security</groupId>
     <artifactId>spring-security-config</artifactId>
     <version>5.7.10</version>
-</dependency>
-
-<dependency>
-    <groupId>org.springframework.security</groupId>
-    <artifactId>spring-security-oauth2-core</artifactId>
-    <version>5.7.10</version>
-</dependency>
-
-
-<dependency>
-    <groupId>org.springframework.security.oauth</groupId>
-    <artifactId>spring-security-oauth2</artifactId>
-    <version>2.3.8.RELEASE</version>
-</dependency>
-
-<!-- Spring Security OAuth2 (전통적인 방식) -->
-<dependency>
-    <groupId>org.springframework.security.oauth</groupId>
-    <artifactId>spring-security-oauth2</artifactId>
-    <version>2.5.2.RELEASE</version>
-</dependency>
-
-<!-- Spring Security OAuth2 Authorization Server -->
-<dependency>
-    <groupId>org.springframework.security.oauth.boot</groupId>
-    <artifactId>spring-security-oauth2-autoconfigure</artifactId>
-    <version>2.6.8</version>
-</dependency>
-
-<!-- JWT 지원을 위한 의존성 -->
-<dependency>
-    <groupId>org.springframework.security</groupId>
-    <artifactId>spring-security-jwt</artifactId>
-    <version>1.1.1.RELEASE</version>
 </dependency>
 
 
