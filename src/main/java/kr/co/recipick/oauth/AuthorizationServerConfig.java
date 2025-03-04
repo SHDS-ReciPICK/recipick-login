@@ -1,7 +1,5 @@
 package kr.co.recipick.oauth;
 
-import javax.sql.DataSource;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,7 +12,8 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.token.TokenStore;
-import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
+import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
+import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 
 @Configuration
 @EnableAuthorizationServer
@@ -25,17 +24,21 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     private AuthenticationManager authenticationManager;
     
     @Autowired
-    private DataSource dataSource;
-    
-    @Autowired
     private PasswordEncoder passwordEncoder;
     
     @Autowired
     private RecipickUserDetailsService userDetailsService;
     
     @Bean
+    public JwtAccessTokenConverter accessTokenConverter() {
+        JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
+        converter.setSigningKey("recipick-jwt-signing-key"); // 서명 키 설정
+        return converter;
+    }
+    
+    @Bean
     public TokenStore tokenStore() {
-        return new JdbcTokenStore(dataSource);
+        return new JwtTokenStore(accessTokenConverter());
     }
     
     @Override
@@ -48,14 +51,14 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
                 .scopes("read", "profile", "purchase_history")
                 .redirectUris("http://localhost:3000/oauth/callback")
                 .accessTokenValiditySeconds(3600)
-                .refreshTokenValiditySeconds(86400)
-                .autoApprove(false);  // 사용자에게 권한 동의 화면 표시
+                .refreshTokenValiditySeconds(86400);
     }
     
     @Override
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
         endpoints
                 .tokenStore(tokenStore())
+                .accessTokenConverter(accessTokenConverter())
                 .authenticationManager(authenticationManager)
                 .userDetailsService(userDetailsService);
     }

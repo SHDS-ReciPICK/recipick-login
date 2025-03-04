@@ -47,7 +47,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .anyRequest().authenticated()
                 .and()
             .formLogin()
-                .loginPage("/signin.do") // 기존 로그인 페이지 활용
+                .loginPage("/signin.do") // 레시픽 기존 로그인 페이지
                 .permitAll();
     }
 }

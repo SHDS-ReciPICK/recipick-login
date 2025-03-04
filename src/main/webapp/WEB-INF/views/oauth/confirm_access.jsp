@@ -1,10 +1,7 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <!DOCTYPE html>
 <html>
-<head>
-<meta charset="UTF-8">
-<title>Insert title here</title>
 <head>
     <meta charset="UTF-8">
     <title>권한 동의 - 레시픽</title>
@@ -15,6 +12,7 @@
         <h2>솔픽 애플리케이션에 접근 권한 부여</h2>
         
         <p>솔픽(${client})이 다음 정보에 접근하기를 원합니다:</p>
+        
         <ul>
         <c:forEach items="${scopes}" var="scope">
             <c:choose>
