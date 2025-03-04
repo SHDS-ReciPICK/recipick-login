@@ -50,4 +50,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .loginPage("/signin.do") // 레시픽 기존 로그인 페이지
                 .permitAll();
     }
+    
+//	@Override
+//	protected void configure(HttpSecurity http) throws Exception {
+//		http
+//			.logout()
+//			.logoutSuccessUrl("/login")
+//			.addLogoutHandler((request, response, authentication) -> {
+//			// 토큰 무효화 로직
+//			// 예: Redis 블랙리스트 등록
+//		});
+//	}
+    
 }

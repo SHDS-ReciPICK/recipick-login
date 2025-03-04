@@ -1,9 +1,9 @@
 package kr.co.recipick.oauth;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
@@ -17,8 +17,11 @@ import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 
 @Configuration
 @EnableAuthorizationServer
-@Order(1)
 public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdapter {
+
+    // 토큰 유효 시간 상수화
+    private static final int ACCESS_TOKEN_VALIDITY_SECONDS = 3600;     // 1시간
+    private static final int REFRESH_TOKEN_VALIDITY_SECONDS = 604800;  // 7일
 
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -28,11 +31,14 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     
     @Autowired
     private RecipickUserDetailsService userDetailsService;
-    
+
+    @Value("${oauth.signing.key}")  // application.properties에서 관리
+    private String signingKey;
+
     @Bean
     public JwtAccessTokenConverter accessTokenConverter() {
         JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
-        converter.setSigningKey("recipick-jwt-signing-key"); // 서명 키 설정
+        converter.setSigningKey(signingKey);
         return converter;
     }
     
@@ -40,33 +46,32 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     public TokenStore tokenStore() {
         return new JwtTokenStore(accessTokenConverter());
     }
-    
+
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
-        // 솔픽 클라이언트 정보 등록
         clients.inMemory()
-                .withClient("solpick-client")
-                .secret(passwordEncoder.encode("solpick-secret"))
-                .authorizedGrantTypes("authorization_code", "refresh_token")
-                .scopes("read", "profile", "purchase_history")
-                .redirectUris("http://localhost:3000/oauth/callback")
-                .accessTokenValiditySeconds(3600)
-                .refreshTokenValiditySeconds(86400);
+            .withClient("solpick-client")
+            .secret(passwordEncoder.encode("solpick-secret"))
+            .authorizedGrantTypes("authorization_code", "refresh_token", "client_credentials")
+            .scopes("read", "profile", "purchase_history")
+            .redirectUris("http://localhost:3000/oauth/callback")
+            .accessTokenValiditySeconds(ACCESS_TOKEN_VALIDITY_SECONDS)
+            .refreshTokenValiditySeconds(REFRESH_TOKEN_VALIDITY_SECONDS);
     }
-    
+
     @Override
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
         endpoints
-                .tokenStore(tokenStore())
-                .accessTokenConverter(accessTokenConverter())
-                .authenticationManager(authenticationManager)
-                .userDetailsService(userDetailsService);
+            .tokenStore(tokenStore())
+            .accessTokenConverter(accessTokenConverter())
+            .authenticationManager(authenticationManager)
+            .userDetailsService(userDetailsService);
     }
-    
+
     @Override
     public void configure(AuthorizationServerSecurityConfigurer security) throws Exception {
         security
-                .tokenKeyAccess("permitAll()")
-                .checkTokenAccess("isAuthenticated()");
+            .tokenKeyAccess("permitAll()")
+            .checkTokenAccess("isAuthenticated()");
     }
 }
