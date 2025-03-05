@@ -113,13 +113,13 @@ public class CheckoutController {
 			orderHistory.setPaymentMethod(paymentMethod);
 			orderHistory.setAddress(address);
 
-//			System.out.println("Member ID: " + orderHistory.getMemberId());
-//			System.out.println("Order State: " + orderHistory.getOrderState());
-//			System.out.println("Delivery Status: " + orderHistory.getDeliveryStatus());
-//			System.out.println("Payment Method: " + orderHistory.getPaymentMethod());
-//			System.out.println("Delivery Date: " + orderHistory.getDeliveryDate());
-//			System.out.println("Order Date: " + orderHistory.getOrderDate());
-//			System.out.println("Address: " + orderHistory.getAddress());
+			System.out.println("Member ID: " + orderHistory.getMemberId());
+			System.out.println("Order State: " + orderHistory.getOrderState());
+			System.out.println("Delivery Status: " + orderHistory.getDeliveryStatus());
+			System.out.println("Payment Method: " + orderHistory.getPaymentMethod());
+			System.out.println("Delivery Date: " + orderHistory.getDeliveryDate());
+			System.out.println("Order Date: " + orderHistory.getOrderDate());
+			System.out.println("Address: " + orderHistory.getAddress());
 
 			checkoutService.createOrder(orderHistory, 1);
 

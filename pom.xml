@@ -219,44 +219,6 @@
 			<artifactId>iamport-rest-client-java</artifactId>
 			<version>0.2.14</version>
 		</dependency>
-		
-		
-		<!-- oauth 관련 -->
-		<!-- Spring Security로 보안 처리가 되진 않고, 설정을 통해 OAuth 관련 엔드포인트에만 적용 기존 세션 기반 인증은 그대로 유지 -->
-		
-		<!-- Spring Security OAuth2 -->
-<dependency>
-    <groupId>org.springframework.security.oauth</groupId>
-    <artifactId>spring-security-oauth2</artifactId>
-    <version>2.3.8.RELEASE</version>
-</dependency>
-
-<!-- JWT 토큰 지원 -->
-<dependency>
-    <groupId>org.springframework.security</groupId>
-    <artifactId>spring-security-jwt</artifactId>
-    <version>1.1.1.RELEASE</version>
-</dependency>
-
-<!-- Spring Security -->
-<dependency>
-    <groupId>org.springframework.security</groupId>
-    <artifactId>spring-security-web</artifactId>
-    <version>5.7.10</version>
-</dependency>
-
-<dependency>
-    <groupId>org.springframework.security</groupId>
-    <artifactId>spring-security-config</artifactId>
-    <version>5.7.10</version>
-</dependency>
-
-<!-- 기존 의존성에 JWT 지원 추가 -->
-<dependency>
-    <groupId>org.springframework.security</groupId>
-    <artifactId>spring-security-jwt</artifactId>
-    <version>1.1.1.RELEASE</version>
-</dependency>
 
 	</dependencies>
 	<build>

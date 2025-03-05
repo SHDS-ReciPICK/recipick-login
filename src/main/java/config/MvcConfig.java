@@ -156,12 +156,4 @@ public class MvcConfig implements WebMvcConfigurer {
 		config.setLocations(new ClassPathResource("db.properties"));
 		return config;
 	}
-	
-	
-	@Bean
-	public static PropertyPlaceholderConfigurer oauthProperties() {
-	    PropertyPlaceholderConfigurer config = new PropertyPlaceholderConfigurer();
-	    config.setLocations(new ClassPathResource("oauth.properties"));
-	    return config;
-	}
 }
