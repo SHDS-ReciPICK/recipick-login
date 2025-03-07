@@ -9,6 +9,7 @@ import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -31,6 +32,7 @@ import util.LoginInterceptor;
 @ComponentScan(basePackages = { "kr.co.recipick","util" })
 @EnableWebMvc
 @MapperScan(basePackages = { "kr.co.recipick" }, annotationClass = Mapper.class) // 인터페이스 스캔
+@PropertySource("classpath:application.properties")
 @EnableTransactionManagement
 public class MvcConfig implements WebMvcConfigurer {
 	// 파일업로드
@@ -153,7 +155,9 @@ public class MvcConfig implements WebMvcConfigurer {
 	@Bean
 	public static PropertyPlaceholderConfigurer propreties() {
 		PropertyPlaceholderConfigurer config = new PropertyPlaceholderConfigurer();
-		config.setLocations(new ClassPathResource("db.properties"));
+		config.setLocations(
+				new ClassPathResource("db.properties"),
+				new ClassPathResource("application.properties"));
 		return config;
 	}
 }

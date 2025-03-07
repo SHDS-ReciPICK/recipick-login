@@ -23,13 +23,13 @@
 	</select>
 	<select id="adminCheck" resultType="int">
 	    SELECT COUNT(*) FROM member WHERE email=#{email} AND pwd=#{pwd} AND ADMIN = '1'
-</select>
+	</select>
 	<select id="getNickname" resultType="String">
 		    SELECT nickname FROM member WHERE email=#{email} AND pwd=#{pwd}
 	</select>
 	<select id="getMemberid" resultType="int">
 		    SELECT member_id FROM member WHERE email=#{email} AND pwd=#{pwd}
-	</select>
+	</select>	
 
 	<select id="detail" resultType="kr.co.recipick.member.MemberVO" parameterType="int">
 		SELECT * FROM member WHERE member_id=#{member_id}
@@ -299,4 +299,7 @@
 		WHERE m.member_id=#{member_id}
 		
 		</select>
+
+		
+		
 </mapper>

@@ -3,7 +3,6 @@ package kr.co.recipick.member;
 import java.util.List;
 import java.util.Map;
 
-
 public interface MemberService {
 	boolean regist(MemberVO vo);
 	int emailCheck(String email);
