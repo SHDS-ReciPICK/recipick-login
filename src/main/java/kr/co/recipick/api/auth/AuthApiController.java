@@ -29,21 +29,21 @@ public class AuthApiController {
         try {
             // API 키 검증
             if (!authService.validateApiKey(requestVO.getApiKey())) {
-                return new ResponseEntity<>(false, HttpStatus.FORBIDDEN);
+                return new ResponseEntity<>(false, HttpStatus.FORBIDDEN); //403
             }
             // 이메일/비밀번호 인증만 수행
             boolean isAuthenticated = authService.validateCredentials(requestVO.getEmail(), requestVO.getPassword());
             
             if (isAuthenticated) {
                 logger.info("사용자 인증 성공: " + requestVO.getEmail());
-                return new ResponseEntity<>(true, HttpStatus.OK);
+                return new ResponseEntity<>(true, HttpStatus.OK); //200
             } else {
                 logger.warn("사용자 인증 실패: " + requestVO.getEmail());
-                return new ResponseEntity<>(false, HttpStatus.OK);
+                return new ResponseEntity<>(false, HttpStatus.OK); //200
             }
         } catch (Exception e) {
             logger.error("사용자 인증 처리 중 오류 발생", e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR); //500
         }
     }
 }

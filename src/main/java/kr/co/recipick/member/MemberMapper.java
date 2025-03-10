@@ -42,9 +42,5 @@ public interface MemberMapper {
 
 	int countLikeRecipes(MemberVO vo);
 	List<MemberVO> getLikeRecipes(MemberVO vo);
-	
-	
 	MemberVO findByEmail(String email);
- 
-
 }

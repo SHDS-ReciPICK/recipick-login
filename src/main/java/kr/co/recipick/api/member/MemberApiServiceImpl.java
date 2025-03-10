@@ -3,9 +3,6 @@ package kr.co.recipick.api.member;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import kr.co.recipick.member.MemberService;
-import kr.co.recipick.member.MemberVO;
-
 @Service 
 public class MemberApiServiceImpl implements MemberApiService {
     

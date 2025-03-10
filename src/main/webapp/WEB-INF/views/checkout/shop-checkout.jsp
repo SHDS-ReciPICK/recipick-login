@@ -89,7 +89,7 @@ body {
 							<div class="mb-8">
 								<!-- text -->
 								<h1 class="fw-bold mb-0">주문서</h1>
-								<p class="mt-2">결제 방식을 선택하시고, 즐겁고 맛있는 경험을 준비하세요!</p>
+								<p class="mt-2">오늘 주문시 내일 새벽 도착! 즐겁고 맛있는 경험을 준비하세요!</p>
 								<!-- <p class="mb-0">결제 옵션을 선택하여 주문을 진행하세요.</p> -->
 							</div>
 						</div>
@@ -158,8 +158,6 @@ body {
 											일자</i>
 										<ul class="nav nav-pills nav-pills-light mb-3 nav-fill mt-5"
 											id="dateTabs" role="tablist">
-
-											<!-- 여기에 날짜 버튼을 추가합니다 -->
 										</ul>
 										<div class="mt-5">
 											<label for="DeliveryInstructions" class="form-label sr-only">배송
@@ -202,7 +200,76 @@ body {
 									<div id="flush-collapseTwo" class="accordion-collapse collapse"
 										data-bs-parent="#accordionFlushExample">
 										<div class="mt-5">
-											<div>
+												<!-- <div class="card card-bordered shadow-none mb-2">
+													card body
+													<div class="card-body p-6">
+														<div class="d-flex">
+															<div class="form-check">
+																input
+																<input class="form-check-input" type="radio"
+																	name="flexRadioDefault" id="creditdebitcard" /> <label
+																	class="form-check-label ms-2" for="creditdebitcard"></label>
+															</div>
+															<div>
+																<h5 class="mb-1 h6">SOL Pick 카드 결제</h5>
+																<p class="mb-0 small">입금 계좌번호를 선택하여 결제를 완료해주세요.</p>
+															</div>
+														</div>
+
+													</div>
+												</div> -->
+												
+												<!-- 컬러페이 프로모션 카드 - 결제 섹션 상단에 배치 -->
+												<div class="mb-5">
+												    <div class="card border-0 rounded-4" style="background-color: #f8f3ff;">
+												        <div class="card-body p-4 text-center">
+												        	<%-- <img src="${pageContext.request.contextPath}/images/logo/recipick-logo.svg" alt="쏠픽" height="28" class="me-1"> 
+												            <h5 class="card-title mb-2">카드로 결제하고</h5> --%>
+												            <h5 class="card-title mb-2">
+												                <span class="d-inline-flex align-items-center">
+												                	<img src="${pageContext.request.contextPath}/images/logo/shinhan.png" alt="신한" height="24" class="me-1">
+												                	<span> X </span>
+												                    <img src="${pageContext.request.contextPath}/images/logo/recipick-logo.svg" alt="쏠픽" height="24" class="me-1">
+												                    <span>카드로 결제하고</span>
+												                </span>
+												            </h5>
+												            <h4 class="card-subtitle mb-3 text-primary fw-bold">포인트 적립 받으세요</h4>
+												            <button class="btn btn-primary rounded-pill px-4 py-2 fw-semibold" id="applyDiscount">
+												                할인 받기
+												            </button>
+												            
+												            <div class="text-muted small mt-3">
+												                <!-- 결제 시 최대 5,280원 추가 적립 -->
+												                식당 등 2% 적립
+												            </div>
+												        </div>
+												    </div>
+												</div>
+												<!-- 레시픽 카드 결제 옵션 -->
+												<div class="card card-bordered shadow-none mb-2">
+												    <!-- card body -->
+												    <div class="card-body p-6" style="background-color: #f8f3ff; border-left: 5px solid #9758d9;">
+												        <div class="d-flex">
+												            <div class="form-check">
+												                <!-- input -->
+												                <input class="form-check-input" type="radio" name="flexRadioDefault" id="recipickCard" /> 
+												                <label class="form-check-label ms-2" for="recipickCard"></label>
+												            </div>
+												            <div>
+												                <div class="d-flex align-items-center">
+												                    <div class="me-2">
+												                        <img src="${pageContext.request.contextPath}/images/payment/recipick-card-icon.svg" alt="레시픽 카드" width="30" height="30" />
+												                    </div>
+												                </div>
+												                <p class="mb-0 small">30,000원 할인 혜택을 받아보세요!</p>
+												                <div class="mt-2">
+												                    <span class="badge bg-primary">5,280원 추가 적립</span>
+												                </div>
+												            </div>
+												        </div>
+												    </div>
+												</div>
+												
 												<div class="card card-bordered shadow-none mb-2">
 													<!-- card body -->
 													<div class="card-body p-6">
@@ -225,7 +292,7 @@ body {
 												<div class="card card-bordered shadow-none mb-2">
 													<!-- card body -->
 													<div class="card-body p-6">
-														<div class="d-flex mb-4">
+														<div class="d-flex">
 															<div class="form-check">
 																<!-- input -->
 																<input class="form-check-input" type="radio"
@@ -240,8 +307,6 @@ body {
 
 													</div>
 												</div>
-
-												<!-- Button -->
 												<div class="mt-5 d-flex justify-content-end">
 													<a href="#" class="btn btn-outline-gray-400 text-muted"
 														data-bs-toggle="collapse"
@@ -251,7 +316,7 @@ body {
 														class="btn btn-primary ms-2">결제하기</a> -->
 													<button id="paymentButton" class="btn btn-primary ms-2">결제하기</button>
 												</div>
-											</div>
+											
 										</div>
 									</div>
 								</div>
@@ -273,8 +338,15 @@ body {
 
 									<!-- 간단한 초기 메시지 -->
 									<div id="simpleSummary" class="px-6 py-4 text-muted">
-										<span>${cartItems[0].category == 0 ? cartItems[0].ing_name : cartItems[0].rcp_title}
+									
+	 									<span>${cartItems[0].category == 0 ? cartItems[0].ing_name : cartItems[0].rcp_title}
 											외 ${cartItems.size() - 1}개 상품을 주문합니다.</span>
+											
+						<%-- 				<span>
+  ${cartItems.size() == 1 
+    ? (cartItems[0].category == 0 ? cartItems[0].ing_name : cartItems[0].rcp_title) + '을 주문합니다.' 
+    : (cartItems[0].category == 0 ? cartItems[0].ing_name : cartItems[0].rcp_title) + ' 외 ' + (cartItems.size() - 1) + '개 상품을 주문합니다.'}
+</span> --%>
 									</div>
 
 									<!-- 주문 내역 상세 -->
@@ -469,28 +541,89 @@ body {
 			</div>
 		</div>
 	</div>
+	
+	
+	<!-- 레시픽 카드 결제 모달 -->
+<div class="modal fade" id="recipickCardModal" tabindex="-1" aria-labelledby="recipickCardModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header" style="background-color: #9758d9; color: white;">
+        <h5 class="modal-title" id="recipickCardModalLabel">레시픽 카드 결제</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div id="recipickCardError" class="alert alert-danger d-none"></div>
+        
+        <!-- 카드 정보 입력 -->
+        <div class="mb-3">
+          <label for="recipickCardNumber" class="form-label">카드 번호</label>
+          <input type="text" class="form-control" id="recipickCardNumber" placeholder="0000 0000 0000 0000">
+        </div>
+        
+        <div class="row mb-3">
+          <div class="col-6">
+            <label for="recipickCardExpiry" class="form-label">유효기간</label>
+            <input type="text" class="form-control" id="recipickCardExpiry" placeholder="MM/YY">
+          </div>
+          <div class="col-6">
+            <label for="recipickCardCvv" class="form-label">CVV</label>
+            <input type="text" class="form-control" id="recipickCardCvv" placeholder="123">
+          </div>
+        </div>
+        
+        <!-- 포인트 사용 섹션 -->
+        <div class="card p-3 mt-4 mb-3" style="background-color: #f7f2ff;">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="usePointsCheckbox">
+              <label class="form-check-label fw-bold" for="usePointsCheckbox">
+                포인트 사용
+              </label>
+            </div>
+            <div class="text-primary fw-bold">
+              사용 가능 포인트: <span id="availablePoints">5,280</span>P
+            </div>
+          </div>
+          
+          <div id="pointsInputSection" class="d-none">
+            <div class="input-group">
+              <input type="number" class="form-control" id="pointsToUse" placeholder="사용할 포인트">
+              <button class="btn btn-outline-primary" type="button" id="useAllPoints">전액사용</button>
+            </div>
+            <small class="text-muted mt-1">1,000P부터 100P 단위로 사용 가능합니다.</small>
+          </div>
+        </div>
+        
+        <!-- 최종 결제 금액 표시 -->
+        <div class="bg-light p-3 rounded">
+          <div class="d-flex justify-content-between align-items-center">
+            <span>최종 결제 금액</span>
+            <span class="fs-5 fw-bold text-primary" id="finalPaymentAmount">${totalPrice}원</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+        <button type="button" class="btn btn-primary" id="confirmRecipickPayment">결제하기</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 
 	<!-- Footer -->
 	<!-- 푸터 컴포넌트 -->
 	<jsp:include page="/WEB-INF/views/components/footer.jsp" />
 	<!-- Javascript-->
-	<script
-		src="${pageContext.request.contextPath}/libs/flatpickr/dist/flatpickr.min.js"></script>
-	<!-- Libs JS -->
-	<!-- <script src="${pageContext.request.contextPath}/libs/jquery/dist/jquery.min.js"></script> -->
-	<script
-		src="${pageContext.request.contextPath}/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-	<script
-		src="${pageContext.request.contextPath}/libs/simplebar/dist/simplebar.min.js"></script>
+	<script src="${pageContext.request.contextPath}/libs/flatpickr/dist/flatpickr.min.js"></script>
+	<script src="${pageContext.request.contextPath}/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+	<script src="${pageContext.request.contextPath}/libs/simplebar/dist/simplebar.min.js"></script>
 
 	<!-- Theme JS -->
 	<script src="${pageContext.request.contextPath}/js/theme.min.js"></script>
 
-	<script
-		src="${pageContext.request.contextPath}/libs/imask/dist/imask.min.js"></script>
-	<script
-		src="${pageContext.request.contextPath}/js/vendors/inputmask.js"></script>
+	<script src="${pageContext.request.contextPath}/libs/imask/dist/imask.min.js"></script>
+	<script src="${pageContext.request.contextPath}/js/vendors/inputmask.js"></script>
 
 
 	<!-- 아임포트 라이브러리 -->
@@ -512,8 +645,7 @@ body {
 
 
 	<!-- 우편번호 API -->
-	<script
-		src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+	<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 
 	<script src="https://cdn.iamport.kr/v1/iamport.js"></script>
 
@@ -523,229 +655,402 @@ body {
 	<script
 		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
 
-	<!-- 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"> -->
-
 	<script src="https://pg.kakao.com/kakaopay.js"></script>
 
 	<script>
 	
+	$(document).ready(function () {
+	    function formatCurrency(value) {
+	        return parseInt(value).toLocaleString() + " 원";
+	    }
 
-		// 우편번호 찾기 버튼 클릭 이벤트
-		$(document).ready(function () {
-			function formatCurrency(value) {
-		        return parseInt(value).toLocaleString() + " 원";
-		    }
+	    // JSP에서 전달된 값 확인 및 디버깅
+	    const totalOriginalPrice = parseInt(${totalOriginalPrice} || 0);
+	    const totalDiscountPrice = parseInt(${totalDiscountPrice} || 0);
+	    const totalPrice = parseInt(${totalPrice} || 0);
 
-		    // JSP에서 전달된 값 확인 및 디버깅
-		    const totalOriginalPrice = parseInt(${totalOriginalPrice} || 0); // JSP 값이 없으면 기본값 0
-		    const totalDiscountPrice = parseInt(${totalDiscountPrice} || 0);
-		    const totalPrice = parseInt(${totalPrice} || 0);
+	    // DOM 업데이트
+	    $('#totalOriginalPrice').text(formatCurrency(totalOriginalPrice));
+	    $('#totalDiscountPrice').text(formatCurrency(totalDiscountPrice));
+	    $('#totalPrice').text(formatCurrency(totalPrice));
+	    
+	    // 우편번호 찾기 버튼 클릭 이벤트
+	    $('#findAddress').on('click', function () {
+	        new daum.Postcode({
+	            oncomplete: function (data) {
+	                const roadAddr = data.roadAddress;
+	                const jibunAddr = data.jibunAddress;
+	                $('#sample6_postcode').val(roadAddr || jibunAddr);
+	            }
+	        }).open();
+	    });
+	    
+	    // 주문 내역 토글 기능
+	    $('#toggleDetailsButton').on('click', function () {
+	        const details = $('#orderDetails');
+	        const summary = $('#simpleSummary');
+	        const icon = $('#toggleIcon');
 
-		    // DOM 업데이트
-		    $('#totalOriginalPrice').text(formatCurrency(totalOriginalPrice));
-		    $('#totalDiscountPrice').text(formatCurrency(totalDiscountPrice));
-		    $('#totalPrice').text(formatCurrency(totalPrice));
-			
-   			 // 우편번호 찾기 버튼 클릭 이벤트
-		    $('#findAddress').on('click', function () {
-		        new daum.Postcode({
-		            oncomplete: function (data) {
-		                // 도로명 주소와 지번 주소를 변수에 저장
-		                const roadAddr = data.roadAddress; // 도로명 주소
-		                const jibunAddr = data.jibunAddress; // 지번 주소
-		
-		                // 도로명 주소가 있으면 도로명 주소, 없으면 지번 주소를 입력창에 표시
-		                $('#sample6_postcode').val(roadAddr || jibunAddr);
-		            }
-		        }).open();
-		    });
-   			 
-		
-		    // 주문 내역 토글 기능
-		    $('#toggleDetailsButton').on('click', function () {
-		        const details = $('#orderDetails');
-		        const summary = $('#simpleSummary');
-		        const icon = $('#toggleIcon');
-		
-		        if (details.hasClass('show')) {
-		            // Collapse 상세 내역
-		            details.removeClass('show');
-		            summary.show(); // 간단한 메시지 다시 표시
-		            icon.removeClass('bi-caret-up-fill').addClass('bi-caret-down-fill');
-		        } else {
-		            // Expand 상세 내역
-		            details.addClass('show');
-		            summary.hide(); // 간단한 메시지 숨김
-		            icon.removeClass('bi-caret-down-fill').addClass('bi-caret-up-fill');
-		        }
-		    });
-		    
-			    
-		    // 날짜 탭 생성 // 배달날짜
-		    const daysContainer = $('#dateTabs');
-		    
-		    if (daysContainer.length === 0) {
-		        console.error("dateTabs 컨테이너를 찾을 수 없습니다.");
-		        return;
-		    }
-		
-		    const today = new Date();
-		    const daysOfWeek = ["일", "월", "화", "수", "목", "금", "토"];
-		    const options = { month: "2-digit", day: "2-digit", timeZone: "Asia/Seoul" };
-		
-		    for (let i = 0; i < 7; i++) {
-		        const date = new Date(today);
-		        date.setDate(today.getDate() + i);
-		
-		        const dayName = daysOfWeek[date.getDay()];
-		       	formattedDate = date.toLocaleDateString("ko-KR", options);
-		        
-		        formattedDate = formattedDate.slice(0, -1);
-		        
-		        
-		        const isoDate = date.toISOString().split('T')[0];
-		        const isToday = i === 0 ? "Today" : dayName;
-		        
-		
-		        // 날짜 탭 버튼 HTML 생성 및 추가
-		        const button = `
-		            <li class="nav-item" role="presentation">
-		                <button class="nav-link \${i == 0 ? "active" : ""}" 
-		                        id="pills-\${isToday}-tab"
-		                        data-bs-toggle="pill" 
-		                        data-bs-target="#pills-\${isToday}"
-		                        type="button" role="tab" 
-		                        aria-controls="pills-\${isToday}" 
-		                        data-date="\${isoDate}" 
-		                        aria-selected="${i == 0}">
-		                    \${isToday} <br /> <small>\${formattedDate}</small>
-		                </button>
-		            </li>`;
-		        daysContainer.append(button);
-		    }
-		    
-		    $('#dateTabs').on('click', '.nav-link', function () {
-		        $('#dateTabs .nav-link').removeClass('active');
-		        $(this).addClass('active');
-		    });
-		    
-		    
-		   
-		
-		        
-		        $('#paymentButton').on('click', function () {
-		        	
-		        	
-		        	const selectedDeliveryDate = $('#dateTabs .nav-link.active').data('date');
-    const IMP = window.IMP; 
-    IMP.init('imp48864864');
-    
-    /* let uid = new Date().getTime(); */
-    const uid = new Date().getTime().toString().substr(-10);
-   
-    const paymentData = {
-        pg: 'uplus', // PG사
-        pay_method: 'card', // 결제 방식 
-        merchant_uid: uid, // 고유 주문번호
-        name: '테스트 상품', // 상품명
-        /* amount: '${totalPrice}', // 결제 금액 (테스트에서 임의로 설정) */
-        amount: 100,
-        buyer_email: '${orderer.email}', 
-        buyer_name: '${orderer.name}', 
-        buyer_tel: '${orderer.phone}', 
-        buyer_addr: '${orderer.address}', 
-        buyer_postcode: '123-456', 
-    };
-    
-    
+	        if (details.hasClass('show')) {
+	            details.removeClass('show');
+	            summary.show();
+	            icon.removeClass('bi-caret-up-fill').addClass('bi-caret-down-fill');
+	        } else {
+	            details.addClass('show');
+	            summary.hide();
+	            icon.removeClass('bi-caret-down-fill').addClass('bi-caret-up-fill');
+	        }
+	    });
+	    
+	    // 날짜 탭 생성
+	    const daysContainer = $('#dateTabs');
+	    
+	    if (daysContainer.length === 0) {
+	        console.error("dateTabs 컨테이너를 찾을 수 없습니다.");
+	        return;
+	    }
 
+	    const today = new Date();
+	    const daysOfWeek = ["일", "월", "화", "수", "목", "금", "토"];
+	    const options = { month: "2-digit", day: "2-digit", timeZone: "Asia/Seoul" };
 
-    IMP.request_pay(paymentData, function (rsp) {
-        const isSuccess = rsp.success;
-        
-        /* const selectedDeliveryDate = $('#dateTabs .nav-link.active').data('date'); */
-        /* const selectedDeliveryDate = $('#dateTabs .nav-link.active').data('date'); */
-        
-       
+	    for (let i = 0; i < 7; i++) {
+	        const date = new Date(today);
+	        date.setDate(today.getDate() + i + 1);
 
-        // 공통 데이터
-        const commonData = {
-            totalPrice: paymentData.amount, 
-            /* deliveryDate: $('#dateTabs .nav-link.active').text(), */ 
-            deliveryDate: selectedDeliveryDate,  
-            orderDate: new Date().toISOString().split('T')[0], 
-            paymentMethod: paymentData.pay_method, 
-            merchantUid: rsp.merchant_uid,
-            address: `${orderer.address}`
-        };
-	
-        if (isSuccess) {
-            // 결제 성공 시 처리
-            console.log('결제 성공:', rsp);
+	        const dayName = daysOfWeek[date.getDay()];
+	        formattedDate = date.toLocaleDateString("ko-KR", options);
+	        formattedDate = formattedDate.slice(0, -1);
+	        
+	        const isoDate = date.toISOString().split('T')[0];
+	        const isToday = i === 0 ? "내일" : dayName;
+	        
+	        const button = `
+	            <li class="nav-item" role="presentation">
+	                <button class="nav-link \${i == 0 ? "active" : ""}" 
+	                        id="pills-\${isToday}-tab"
+	                        data-bs-toggle="pill" 
+	                        data-bs-target="#pills-\${isToday}"
+	                        type="button" role="tab" 
+	                        aria-controls="pills-\${isToday}" 
+	                        data-date="\${isoDate}" 
+	                        aria-selected="${i == 0}">
+	                    \${isToday} <br /> <small>\${formattedDate}</small>
+	                </button>
+	            </li>`;
+	        daysContainer.append(button);
+	    }
+	    
+	    $('#dateTabs').on('click', '.nav-link', function () {
+	        $('#dateTabs .nav-link').removeClass('active');
+	        $(this).addClass('active');
+	    });
+	    
+	    // 로딩 표시 함수
+	    function showLoading() {
+	        // 로딩 인디케이터 표시 로직
+	        console.log("로딩 시작...");
+	    }
 
-            const successData = {
-                ...commonData,
-                orderStatus: '결제완료', // 주문 상태
-                impUid: rsp.imp_uid 
-            };
-            console.log(successData);       
-            
+	    function hideLoading() {
+	        // 로딩 인디케이터 숨김 로직
+	        console.log("로딩 종료...");
+	    }
+	    
+	    $('#paymentButton').on('click', function () {
+	        const isRecipickCardSelected = $('#recipickCard').is(':checked');
+	        const selectedDeliveryDate = $('#dateTabs .nav-link.active').data('date');
+	        
+	        if (isRecipickCardSelected) {
+	            // 레시픽 카드 결제 처리
+	            handleRecipickCardPayment(selectedDeliveryDate);
+	        } else {
+	            // 일반 결제 (아임포트)
+	            handleRegularPayment(selectedDeliveryDate);
+	        }
+	    });
+	    
+	    // 레시픽 카드 결제 처리 함수
+	    function handleRecipickCardPayment(selectedDeliveryDate) {
+	        // 레시픽 카드 결제 모달 표시
+	        $('#recipickCardModal').modal('show');
+	    }
 
-            $.ajax({
-                url: `${pageContext.request.contextPath}/checkout/success`,
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify(successData),
-                success: function (response) {
-                    if (response.success) {
-                    	const formattedTotalPrice = formatCurrency(paymentData.amount);
-                        window.location.href = `${pageContext.request.contextPath}/checkout/payment-success?merchantUid=\${rsp.merchant_uid}`;
-                    } else {
-                        alert('결제 정보 저장 중 문제가 발생했습니다.');
-                    }
-                },
-                error: function (xhr, status, error) {
-                    alert('서버와 통신 중 에러가 발생했습니다.');
-                    console.error('통신 에러:', error);
-                }
-            });
-        } else {
-            console.log('결제 실패:', rsp);
+	    // 포인트 사용 체크박스 토글
+	    $('#usePointsCheckbox').on('change', function() {
+	        if ($(this).is(':checked')) {
+	            $('#pointsInputSection').removeClass('d-none');
+	            updateFinalAmount();
+	        } else {
+	            $('#pointsInputSection').addClass('d-none');
+	            $('#pointsToUse').val('');
+	            updateFinalAmount();
+	        }
+	    });
 
-            const failureData = {
-                ...commonData,
-                orderStatus: '주문실패', 
-                errorMessage: rsp.error_msg 
-            };
+	    // 전액 사용 버튼
+	    $('#useAllPoints').on('click', function() {
+	        const availablePoints = parseInt($('#availablePoints').text().replace(/,/g, ''));
+	        $('#pointsToUse').val(availablePoints);
+	        updateFinalAmount();
+	    });
 
-            $.ajax({
-                url: `${pageContext.request.contextPath}/checkout/failure`,
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify(failureData),
-                success: function (response) {
-                    if (response.success) {
-                    	const formattedTotalPrice = formatCurrency(paymentData.amount);
-                    	window.location.href = `${pageContext.request.contextPath}/checkout/payment-failed?merchantUid=\${rsp.merchant_uid}`;
-                    } else {
-                        alert('결제 실패 정보 저장 중 문제가 발생했습니다.');
-                    }
-                },
-                error: function (xhr, status, error) {
-                    alert('서버와 통신 중 에러가 발생했습니다.');
-                    console.error('통신 에러:', error);
-                }
-            });
-        }
-    }); 
-		        }); 
-		        
-		    
-		});
+	    // 포인트 입력 시 최종 결제 금액 업데이트
+	    $('#pointsToUse').on('input', function() {
+	        updateFinalAmount();
+	    });
+
+	    // 최종 결제 금액 업데이트
+	    function updateFinalAmount() {
+	        const originalAmount = parseInt($('#totalPrice').text().replace(/[^0-9]/g, ''));
+	        let pointsToUse = 0;
+	        
+	        if ($('#usePointsCheckbox').is(':checked')) {
+	            pointsToUse = parseInt($('#pointsToUse').val()) || 0;
+	            
+	            // 사용 가능한 포인트를 초과해서 사용하지 못하도록 제한
+	            const availablePoints = parseInt($('#availablePoints').text().replace(/,/g, ''));
+	            if (pointsToUse > availablePoints) {
+	                pointsToUse = availablePoints;
+	                $('#pointsToUse').val(availablePoints);
+	            }
+	            
+	            // 결제 금액보다 많은 포인트를 사용하지 못하도록 제한
+	            if (pointsToUse > originalAmount) {
+	                pointsToUse = originalAmount;
+	                $('#pointsToUse').val(pointsToUse);
+	            }
+	        }
+	        
+	        const finalAmount = originalAmount - pointsToUse;
+	        $('#finalPaymentAmount').text(formatCurrency(finalAmount));
+	    }
+
+	    // 카드 결제 모달에서 결제 버튼 클릭 시
+	    $('#confirmRecipickPayment').on('click', function() {
+	        const cardNumber = $('#recipickCardNumber').val();
+	        const cardExpiry = $('#recipickCardExpiry').val();
+	        const cardCvv = $('#recipickCardCvv').val();
+	        const usePoints = $('#usePointsCheckbox').is(':checked');
+	        const pointsToUse = usePoints ? parseInt($('#pointsToUse').val()) : 0;
+	        
+	        // 입력 검증
+	        if (!cardNumber || !cardExpiry || !cardCvv) {
+	            $('#recipickCardError').removeClass('d-none').text('카드 정보를 모두 입력해주세요.');
+	            return;
+	        }
+	        
+	        // 모달 닫기
+	        $('#recipickCardModal').modal('hide');
+	        
+	        // 현재 가격 정보
+	        const currentPrice = parseInt($('#totalPrice').text().replace(/[^0-9]/g, ''));
+	        const uid = new Date().getTime().toString().substr(-10);
+	        
+	        // 레시픽 카드 결제 API 호출
+	        processRecipickCardPayment(cardNumber, cardExpiry, cardCvv, currentPrice, selectedDeliveryDate, uid, pointsToUse);
+	    });
+
+	    // 레시픽 카드 서비스로 결제 요청하는 함수
+	    function processRecipickCardPayment(cardNumber, cardExpiry, cardCvv, amount, deliveryDate, merchantUid, pointsToUse) {
+	        // 로딩 표시
+	        showLoading();
+	        
+	        // 레시픽 카드 API 호출 데이터
+	        const paymentData = {
+	            cardNumber: cardNumber,
+	            cardExpiry: cardExpiry,
+	            cardCvv: cardCvv,
+	            amount: amount,
+	            pointsToUse: pointsToUse,
+	            orderId: merchantUid,
+	            userId: '${orderer.email}', // 사용자 식별자
+	        };
+	        
+	        // 테스트용 성공 응답 (실제로는 API 호출)
+	        setTimeout(function() {
+	            hideLoading();
+	            
+	            // 결제 성공 데이터
+	            const successData = {
+	                totalPrice: amount,
+	                deliveryDate: deliveryDate,
+	                orderDate: new Date().toISOString().split('T')[0],
+	                paymentMethod: 'recipick_card',
+	                merchantUid: merchantUid,
+	                address: `${orderer.address}`,
+	                orderStatus: '결제완료',
+	                impUid: 'recipick_' + merchantUid,
+	                pointsUsed: pointsToUse,
+	                pointsEarned: Math.floor(amount * 0.02) // 2% 적립
+	            };
+	            
+	            // 주문 성공 처리
+	            saveOrderAndRedirect(successData);
+	        }, 1000);
+	        
+	        /* 실제 API 호출은 아래와 같이 구현
+	        $.ajax({
+	            url: 'https://card-api.recipick.com/api/card/payment/process',
+	            type: 'POST',
+	            contentType: 'application/json',
+	            data: JSON.stringify(paymentData),
+	            success: function(response) {
+	                hideLoading();
+	                
+	                if (response.success) {
+	                    // 결제 성공 데이터
+	                    const successData = {
+	                        totalPrice: amount,
+	                        deliveryDate: deliveryDate,
+	                        orderDate: new Date().toISOString().split('T')[0],
+	                        paymentMethod: 'recipick_card',
+	                        merchantUid: merchantUid,
+	                        address: `${orderer.address}`,
+	                        orderStatus: '결제완료',
+	                        impUid: response.paymentId,
+	                        pointsUsed: pointsToUse,
+	                        pointsEarned: response.pointsEarned
+	                    };
+	                    
+	                    // 주문 성공 처리
+	                    saveOrderAndRedirect(successData);
+	                } else {
+	                    // 결제 실패 처리
+	                    alert('카드 결제 실패: ' + response.message);
+	                }
+	            },
+	            error: function(xhr, status, error) {
+	                hideLoading();
+	                alert('결제 처리 중 오류가 발생했습니다.');
+	                console.error('결제 오류:', error);
+	            }
+	        });
+	        */
+	    }
+
+	    // 주문 정보 저장 및 리다이렉트
+	    function saveOrderAndRedirect(orderData) {
+	        // 테스트용 성공 로직 (실제로는 API 호출)
+	        console.log('주문 정보 저장:', orderData);
+	        window.location.href = `${pageContext.request.contextPath}/checkout/payment-success?merchantUid=${orderData.merchantUid}`;
+	        
+	        /* 실제 API 호출은 아래와 같이 구현
+	        $.ajax({
+	            url: `${pageContext.request.contextPath}/checkout/success`,
+	            type: 'POST',
+	            contentType: 'application/json',
+	            data: JSON.stringify(orderData),
+	            success: function(response) {
+	                if (response.success) {
+	                    window.location.href = `${pageContext.request.contextPath}/checkout/payment-success?merchantUid=${orderData.merchantUid}`;
+	                } else {
+	                    alert('결제는 성공했으나 주문 저장 중 문제가 발생했습니다.');
+	                }
+	            },
+	            error: function(xhr, status, error) {
+	                alert('서버와 통신 중 에러가 발생했습니다.');
+	                console.error('통신 에러:', error);
+	            }
+	        });
+	        */
+	    }
+	    
+	    // 일반 결제 처리 함수
+	    function handleRegularPayment(selectedDeliveryDate) {
+	        const IMP = window.IMP; 
+	        IMP.init('imp48864864');
+	        
+	        const uid = new Date().getTime().toString().substr(-10);
+	       
+	        const paymentData = {
+	            pg: 'uplus',
+	            pay_method: 'card',  
+	            merchant_uid: uid, 
+	            name: '테스트 상품', 
+	            amount: 100,
+	            buyer_email: '${orderer.email}', 
+	            buyer_name: '${orderer.name}', 
+	            buyer_tel: '${orderer.phone}', 
+	            buyer_addr: '${orderer.address}', 
+	            buyer_postcode: '123-456', 
+	        };
+
+	        IMP.request_pay(paymentData, function (rsp) {
+	            const isSuccess = rsp.success;
+	            
+	            // 공통 데이터
+	            const commonData = {
+	                totalPrice: paymentData.amount, 
+	                deliveryDate: selectedDeliveryDate,  
+	                orderDate: new Date().toISOString().split('T')[0], 
+	                paymentMethod: paymentData.pay_method, 
+	                merchantUid: rsp.merchant_uid,
+	                address: `${orderer.address}`
+	            };
+	        
+	            if (isSuccess) {
+	                console.log('결제 성공:', rsp);
+
+	                const successData = {
+	                    ...commonData,
+	                    orderStatus: '결제완료',
+	                    impUid: rsp.imp_uid 
+	                };
+	                console.log(successData);
+	                
+	                $.ajax({
+	                    url: `${pageContext.request.contextPath}/checkout/success`,
+	                    type: 'POST',
+	                    contentType: 'application/json',
+	                    data: JSON.stringify(successData),
+	                    success: function (response) {
+	                        if (response.success) {
+	                            const formattedTotalPrice = formatCurrency(paymentData.amount);
+	                            window.location.href = `${pageContext.request.contextPath}/checkout/payment-success?merchantUid=${rsp.merchant_uid}`;
+	                        } else {
+	                            alert('결제 정보 저장 중 문제가 발생했습니다.');
+	                        }
+	                    },
+	                    error: function (xhr, status, error) {
+	                        alert('서버와 통신 중 에러가 발생했습니다.');
+	                        console.error('통신 에러:', error);
+	                    }
+	                });
+	            } else {
+	                console.log('결제 실패:', rsp);
+
+	                const failureData = {
+	                    ...commonData,
+	                    orderStatus: '주문실패', 
+	                    errorMessage: rsp.error_msg 
+	                };
+
+	                $.ajax({
+	                    url: `${pageContext.request.contextPath}/checkout/failure`,
+	                    type: 'POST',
+	                    contentType: 'application/json',
+	                    data: JSON.stringify(failureData),
+	                    success: function (response) {
+	                        if (response.success) {
+	                            const formattedTotalPrice = formatCurrency(paymentData.amount);
+	                            window.location.href = `${pageContext.request.contextPath}/checkout/payment-failed?merchantUid=${rsp.merchant_uid}`;
+	                        } else {
+	                            alert('결제 실패 정보 저장 중 문제가 발생했습니다.');
+	                        }
+	                    },
+	                    error: function (xhr, status, error) {
+	                        alert('서버와 통신 중 에러가 발생했습니다.');
+	                        console.error('통신 에러:', error);
+	                    }
+	                });
+	            }
+	        });
+	    }
+	});
+
 
 	</script>
-
-	<!-- <script src="${pageContext.request.contextPath}/js/components/recipe-component.js"></script> -->
 
 </body>
 
